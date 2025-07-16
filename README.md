@@ -5,4 +5,4 @@ One codebase / One app for IOS and Android
 Sivefunc
 
 # Version
-0.0.1
+1.0.0
