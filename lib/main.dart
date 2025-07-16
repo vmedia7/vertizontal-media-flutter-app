@@ -52,12 +52,35 @@ class AppNavigation extends StatefulWidget {
 class _AppNavigationState extends State<AppNavigation> {
   int currentPageIndex = 0;
 
+  var tabs = [
+    {
+      'title': 'Home',
+      'screen': HomeScreen(),
+    },
+    {
+      'title': 'Rapture R',
+      'screen': RaptureRScreen(),
+    },
+    {
+      'title': 'TV',
+      'screen': TvScreen(),
+    },
+    {
+      'title': 'Radio',
+      'screen': RadioScreen(),
+    },
+    {
+      'title': 'More',
+      'screen': MoreScreen(),
+    }
+  ];
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rapture Ready Navigation'),
+        title: Text(tabs[currentPageIndex]['title']! as String),
       ),
 
       bottomNavigationBar: NavigationBar(
@@ -98,11 +121,7 @@ class _AppNavigationState extends State<AppNavigation> {
       ),
       body:
           <Widget>[
-            HomeScreen(),
-            RaptureRScreen(),
-            TvScreen(),
-            RadioScreen(),
-            MoreScreen()
+            for (var tab in tabs) tab['screen'] as Widget
           ][currentPageIndex],
     );
   }
