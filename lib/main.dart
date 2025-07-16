@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+// Local Libraries
+import 'package:raptureready/tabs/HomeScreen.dart';
+import 'package:raptureready/tabs/RaptureRScreen.dart';
+import 'package:raptureready/tabs/TvScreen.dart';
+import 'package:raptureready/tabs/RadioScreen.dart';
+import 'package:raptureready/tabs/MoreScreen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -91,76 +98,11 @@ class _AppNavigationState extends State<AppNavigation> {
       ),
       body:
           <Widget>[
-            /// Home page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(
-                  child: Text(
-                    'Home page',
-                    style: theme.textTheme.titleLarge
-                  ),
-                ),
-              ),
-            ),
-            
-            // Rapture R Page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(
-                  child: Text(
-                    'Rapture R Page',
-                    style: theme.textTheme.titleLarge
-                  ),
-                ),
-              ),
-            ),
-
-            // TV Page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(
-                  child: Text(
-                    'TV Page',
-                    style: theme.textTheme.titleLarge
-                  ),
-                ),
-              ),
-            ),
-
-            // Radio Page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(
-                  child: Text(
-                    'Radio Page',
-                    style: theme.textTheme.titleLarge
-                  ),
-                ),
-              ),
-            ),
-
-            // More Page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(
-                  child: Text(
-                    'More Page',
-                    style: theme.textTheme.titleLarge
-                  ),
-                ),
-              ),
-            ),
-
+            HomeScreen(),
+            RaptureRScreen(),
+            TvScreen(),
+            RadioScreen(),
+            MoreScreen()
           ][currentPageIndex],
     );
   }
