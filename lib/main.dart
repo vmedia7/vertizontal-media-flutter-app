@@ -30,33 +30,138 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: DefaultTabController(
-        length: 5,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Rapture Ready Tabs'),
+      home: AppNavigation()
+    );
+  }
+}
+
+class AppNavigation extends StatefulWidget {
+  const AppNavigation({super.key});
+
+  @override
+  State<AppNavigation> createState() => _AppNavigationState();
+}
+
+class _AppNavigationState extends State<AppNavigation> {
+  int currentPageIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rapture Ready Navigation'),
+      ),
+
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        indicatorColor: Colors.deepPurple,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home_filled),
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
           ),
-          bottomNavigationBar: const TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.home_filled)),
-                Tab(icon: Icon(Icons.people_alt)),
-                Tab(icon: Icon(Icons.tv)),
-                Tab(icon: Icon(Icons.radio)),
-                Tab(icon: Icon(Icons.more_horiz)),
-              ],
+          NavigationDestination(
+            selectedIcon: Icon(Icons.people_alt),
+            icon: Icon(Icons.people_alt),
+            label: 'Rapture R',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.tv),
+            icon: Icon(Icons.tv),
+            label: 'TV',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.radio),
+            icon: Icon(Icons.radio),
+            label: 'Radio',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.more),
+            icon: Icon(Icons.more),
+            label: 'More',
+          ),
+        ],
+      ),
+      body:
+          <Widget>[
+            /// Home page
+            Card(
+              shadowColor: Colors.transparent,
+              margin: const EdgeInsets.all(8.0),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    'Home page',
+                    style: theme.textTheme.titleLarge
+                  ),
+                ),
+              ),
+            ),
+            
+            // Rapture R Page
+            Card(
+              shadowColor: Colors.transparent,
+              margin: const EdgeInsets.all(8.0),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    'Rapture R Page',
+                    style: theme.textTheme.titleLarge
+                  ),
+                ),
+              ),
             ),
 
-          body: const TabBarView(
-            children: [
-              Icon(Icons.home_filled),
-              Icon(Icons.people_alt),
-              Icon(Icons.tv),
-              Icon(Icons.radio),
-              Icon(Icons.more_horiz),
-            ],
-          ),
-        ),
-      ),
+            // TV Page
+            Card(
+              shadowColor: Colors.transparent,
+              margin: const EdgeInsets.all(8.0),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    'TV Page',
+                    style: theme.textTheme.titleLarge
+                  ),
+                ),
+              ),
+            ),
+
+            // Radio Page
+            Card(
+              shadowColor: Colors.transparent,
+              margin: const EdgeInsets.all(8.0),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    'Radio Page',
+                    style: theme.textTheme.titleLarge
+                  ),
+                ),
+              ),
+            ),
+
+            // More Page
+            Card(
+              shadowColor: Colors.transparent,
+              margin: const EdgeInsets.all(8.0),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    'More Page',
+                    style: theme.textTheme.titleLarge
+                  ),
+                ),
+              ),
+            ),
+
+          ][currentPageIndex],
     );
   }
 }
