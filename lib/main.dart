@@ -34,7 +34,9 @@ class MyApp extends StatelessWidget {
         length: 5,
         child: Scaffold(
           appBar: AppBar(
-            bottom: const TabBar(
+            title: const Text('Rapture Ready Tabs'),
+          ),
+          bottomNavigationBar: const TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.home_filled)),
                 Tab(icon: Icon(Icons.people_alt)),
@@ -43,8 +45,7 @@ class MyApp extends StatelessWidget {
                 Tab(icon: Icon(Icons.more_horiz)),
               ],
             ),
-            title: const Text('Rapture Ready Tabs'),
-          ),
+
           body: const TabBarView(
             children: [
               Icon(Icons.home_filled),
