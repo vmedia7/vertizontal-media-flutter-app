@@ -1,25 +1,191 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
 
-class HomeScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+Future<HomeLayout> fetchHomeLayout() async {
+  final response = await http.get(
+    Uri.parse('https://app.eternityready.com/data'),
+  );
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return HomeLayout.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>
+    );
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load Home Layout');
+  }
+}
+
+class HomeLayout {
+  final bool status;
+  final String message;
+  final Map<String, dynamic> data;
+
+  const HomeLayout({
+    required this.status,
+    required this.message,
+    required this.data
+  });
+
+  factory HomeLayout.fromJson(Map<String, dynamic> json) {
+    print(json);
+    return switch (json) {
+      {
+        'status': bool status,
+        'message': String message,
+        'data': Map<String, dynamic> data
+      } => HomeLayout(
+          status: status,
+          message: message,
+          data: data,
+        ),
+        _ => throw const FormatException('Failed to load Home Layout.'),
+    };
+  }
+}
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Future<HomeLayout> futureHomeLayout;
+
+  @override
+  void initState() {
+    super.initState();
+    futureHomeLayout = fetchHomeLayout();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Center(
-      child: Card(
-        shadowColor: Colors.transparent,
-        margin: const EdgeInsets.all(8.0),
-        child: SizedBox.expand(
-          child: Center(
-            child: Text(
-              'Home page',
-              style: theme.textTheme.titleLarge
-            ),
-          ),
-        ),
-      )
+      child: FutureBuilder<HomeLayout>(
+        future: futureHomeLayout,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return HomeLayoutWidget(data: snapshot.data!.data);
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+
+          // By default, show a loading spinner.
+          return const CircularProgressIndicator();
+        },
+      ),
     );
   }
 }
 
+class MatrixCell {
+  final String name;
+  final String value;
+
+  MatrixCell({required this.name, required this.value});
+}
+
+class HomeLayoutWidget extends StatelessWidget {
+  Map<String, dynamic> data;
+
+  HomeLayoutWidget({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (var section in data['sections']) DynamicGrid(
+            data: flatToMatrix(section['buttons']!),
+            header: section["title"]
+          )
+        ]
+      ),
+    );
+  }
+
+  List<List<dynamic>> flatToMatrix(List<dynamic> buttons) {
+    int rows = sqrt(buttons.length).toInt();
+    int columns = (buttons.length / rows).toInt();
+    List<List<dynamic>> matrix = [];
+    List<dynamic> current = [];
+    int current_idx = 0;
+
+    for (var row = 0; row < rows; row++) {
+      for (var column = 0; column < columns; column++) {
+        current.add(buttons[current_idx]);
+        current_idx += 1;
+      }
+      matrix.add(current);
+      current = [];
+    }
+    print(matrix);
+    return matrix;
+  }
+}
+
+class DynamicGrid extends StatelessWidget {
+  final List<List<dynamic>> data;
+  final String header;
+
+  DynamicGrid({required this.data, required this.header});
+
+  @override
+  Widget build(BuildContext context) {
+    int rows = data.length;
+    int columns = data.isNotEmpty ? data[0].length : 0;
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              header,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: rows * columns,
+            itemBuilder: (context, index) {
+              int row = index ~/ columns;
+              int col = index % columns;
+              dynamic cellData = data[row][col];
+
+              return Container(
+                margin: EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Center(
+                  child: Text(
+                    cellData['text'].toString(),
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
