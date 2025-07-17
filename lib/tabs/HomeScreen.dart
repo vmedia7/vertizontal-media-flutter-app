@@ -148,12 +148,31 @@ class DynamicGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
-            child: Text(
-              header,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntrinsicWidth(
+                  child: Column(
+                    children: [
+                      Text(
+                        header,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Container(
+                        height: 3,
+                        color: Colors.deepPurple,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
+          SizedBox(height: 16),
           GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -184,10 +203,12 @@ class GridCellWidget extends StatelessWidget {
     print(gridCell);
     return Container(
       margin: EdgeInsets.all(4.0),
+      /*
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8.0),
       ),
+      */
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
