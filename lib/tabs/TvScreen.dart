@@ -9,4 +9,3 @@ class TvScreen extends StatelessWidget {
     return const WebView(url: "https://eternityready.tv/live-tv");
   }
 }
-
