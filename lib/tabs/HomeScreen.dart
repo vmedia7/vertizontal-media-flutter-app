@@ -101,15 +101,13 @@ class HomeLayoutWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          for (var section in data['sections']) DynamicGrid(
-            data: flatToMatrix(section['buttons']!),
-            header: section["title"]
-          )
-        ]
-      ),
+    return ListView(
+      children: [
+        for (var section in data['sections']) DynamicGrid(
+          data: flatToMatrix(section['buttons']!),
+          header: section["title"]
+        )
+      ]
     );
   }
 
@@ -161,30 +159,59 @@ class DynamicGrid extends StatelessWidget {
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              childAspectRatio: 1.0,
+              childAspectRatio: 1.5,
             ),
             itemCount: rows * columns,
             itemBuilder: (context, index) {
               int row = index ~/ columns;
               int col = index % columns;
-              dynamic cellData = data[row][col];
-
-              return Container(
-                margin: EdgeInsets.all(4.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Center(
-                  child: Text(
-                    cellData['text'].toString(),
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-              );
+              return GridCellWidget(gridCell: data[row][col]);
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class GridCellWidget extends StatelessWidget {
+  dynamic gridCell;
+
+  GridCellWidget({required this.gridCell });
+
+  @override
+  Widget build(BuildContext context) {
+    print(gridCell);
+    return Container(
+      margin: EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              constraints: BoxConstraints(
+                maxHeight: 60,
+                maxWidth: 60,
+              ),
+              child: FractionallySizedBox(
+                widthFactor: 0.5,
+                heightFactor: 0.5,
+                child: Image.network(
+                  "https://app.eternityready.com/${gridCell['icon']}",
+                ),
+              ),
+            ),
+            Text(
+              gridCell['text'].toString(),
+              style: TextStyle(fontSize: 12),
+            ),
+          ]
+        )
       ),
     );
   }
