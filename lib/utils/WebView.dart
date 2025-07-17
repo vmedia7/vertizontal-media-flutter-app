@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter/services.dart';
 
 class WebView extends StatefulWidget {
   final String url;
@@ -43,16 +44,31 @@ class _WebViewState extends State<WebView> {
   @override
   Widget build(BuildContext context) {
     print("Loading Percentage ${loadingPercentage}");
-    return Stack(
-      children: [
-        WebViewWidget(
-          controller: controller,
-        ),
-        if (loadingPercentage < 100)
-          Center(
-            child: CircularProgressIndicator()
-          )
-      ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) {
+          return;
+        }
+
+        final shouldPop = await controller.canGoBack();
+        if (shouldPop) {
+          await controller.goBack();
+          return;
+        }
+        await SystemNavigator.pop();
+      },
+      child: Stack(
+        children: [
+          WebViewWidget(
+            controller: controller,
+          ),
+          if (loadingPercentage < 100)
+            Center(
+              child: CircularProgressIndicator()
+            )
+        ],
+      )
     );
   }
 }
