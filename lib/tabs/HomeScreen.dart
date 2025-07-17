@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:raptureready/utils/WebView.dart';
+
 Future<HomeLayout> fetchHomeLayout() async {
   final response = await http.get(
     Uri.parse('https://app.eternityready.com/data'),
@@ -60,6 +62,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<HomeLayout> futureHomeLayout;
 
+  String? _url;
+
+  void _handleLinkClicked(String linkUrl) {
+    setState(() {
+      _url = linkUrl;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,7 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
         future: futureHomeLayout,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return HomeLayoutWidget(data: snapshot.data!.data);
+            if (_url == null) {
+              return HomeLayoutWidget(
+                data: snapshot.data!.data,
+                handleLinkClicked: _handleLinkClicked,
+              );
+            }
+            else {
+              return WebView(url: _url!);
+            }
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
@@ -90,13 +108,21 @@ class MatrixCell {
   final String name;
   final String value;
 
-  MatrixCell({required this.name, required this.value});
+  MatrixCell({
+    required this.name,
+    required this.value,
+  });
 }
 
 class HomeLayoutWidget extends StatelessWidget {
   Map<String, dynamic> data;
+  final void Function(String) handleLinkClicked;
 
-  HomeLayoutWidget({super.key, required this.data});
+  HomeLayoutWidget({
+    super.key,
+    required this.data,
+    required this.handleLinkClicked,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +130,8 @@ class HomeLayoutWidget extends StatelessWidget {
       children: [
         for (var section in data['sections']) DynamicGrid(
           data: flatToMatrix(section['buttons']!),
-          header: section["title"]
+          header: section["title"],
+          handleLinkClicked: handleLinkClicked,
         )
       ]
     );
@@ -132,8 +159,13 @@ class HomeLayoutWidget extends StatelessWidget {
 class DynamicGrid extends StatelessWidget {
   final List<List<dynamic>> data;
   final String header;
+  final void Function(String) handleLinkClicked;
 
-  DynamicGrid({required this.data, required this.header});
+  DynamicGrid({
+    required this.data,
+    required this.header,
+    required this.handleLinkClicked,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +214,10 @@ class DynamicGrid extends StatelessWidget {
             itemBuilder: (context, index) {
               int row = index ~/ columns;
               int col = index % columns;
-              return GridCellWidget(gridCell: data[row][col]);
+              return GridCellWidget(
+                gridCell: data[row][col],
+                handleLinkClicked: handleLinkClicked
+              );
             },
           ),
         ],
@@ -193,44 +228,53 @@ class DynamicGrid extends StatelessWidget {
 
 class GridCellWidget extends StatelessWidget {
   dynamic gridCell;
+  final void Function(String) handleLinkClicked;
 
-  GridCellWidget({required this.gridCell });
+  GridCellWidget({
+    required this.gridCell,
+    required this.handleLinkClicked,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(4.0),
-      /*
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      */
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              constraints: BoxConstraints(
-                maxHeight: 60,
-                maxWidth: 60,
-              ),
-              child: FractionallySizedBox(
-                widthFactor: 0.5,
-                heightFactor: 0.5,
-                child: Image.network(
-                  "https://app.eternityready.com/${gridCell['icon']}",
+    return GestureDetector(
+      onTap: () {
+        handleLinkClicked(gridCell['link']);
+      },
+      child: Container(
+        margin: EdgeInsets.all(4.0),
+        /*
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        */
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: 60,
+                  maxWidth: 60,
+                ),
+                child: FractionallySizedBox(
+                  widthFactor: 0.5,
+                  heightFactor: 0.5,
+                  child: Image.network(
+                    "https://app.eternityready.com/${gridCell['icon']}",
+                  ),
                 ),
               ),
-            ),
-            Text(
-              gridCell['text'].toString(),
-              style: TextStyle(fontSize: 12),
-            ),
-          ]
-        )
-      ),
+              Text(
+                gridCell['text'].toString(),
+                style: TextStyle(fontSize: 12),
+              ),
+            ]
+          )
+        ),
+      )
     );
   }
 }
