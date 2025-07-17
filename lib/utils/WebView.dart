@@ -3,7 +3,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class WebView extends StatefulWidget {
   final String url;
-
   const WebView({ super.key, required this.url });
 
   @override
@@ -11,24 +10,49 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> {
+  var loadingPercentage = 0;
   late final WebViewController controller;
 
   @override
   void initState() {
     super.initState();
     controller = WebViewController()
-        ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..loadRequest(
-          Uri.parse(this.widget.url),
-        );
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(NavigationDelegate(
+        onPageStarted: (url) {
+          setState(() {
+            loadingPercentage = 0;
+          });
+        },
+        onProgress: (progress) {
+          setState(() {
+            loadingPercentage = progress;
+          });
+        },
+        onPageFinished: (url) {
+          setState(() {
+            loadingPercentage = 100;
+          });
+        },
+      ))
+      ..loadRequest(
+        Uri.parse(this.widget.url),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    return WebViewWidget(
-      controller: controller,
+    print("Loading Percentage ${loadingPercentage}");
+    return Stack(
+      children: [
+        WebViewWidget(
+          controller: controller,
+        ),
+        if (loadingPercentage < 100)
+          Center(
+            child: CircularProgressIndicator()
+          )
+      ],
     );
   }
 }
-
-
