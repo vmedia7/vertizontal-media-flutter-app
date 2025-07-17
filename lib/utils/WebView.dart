@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 
 class WebView extends StatefulWidget {
   final String url;
-  const WebView({ super.key, required this.url });
+  final void Function()? customLastGoBack;
+  const WebView({ super.key, required this.url, this.customLastGoBack });
 
   @override
   State<WebView> createState() => _WebViewState();
@@ -43,7 +44,6 @@ class _WebViewState extends State<WebView> {
 
   @override
   Widget build(BuildContext context) {
-    print("Loading Percentage ${loadingPercentage}");
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
@@ -56,7 +56,12 @@ class _WebViewState extends State<WebView> {
           await controller.goBack();
           return;
         }
-        await SystemNavigator.pop();
+        if (this.widget.customLastGoBack == null) {
+          await SystemNavigator.pop();
+          return;
+        }
+
+        this.widget.customLastGoBack?.call();
       },
       child: Stack(
         children: [

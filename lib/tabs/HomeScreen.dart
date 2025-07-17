@@ -70,6 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void customLastGoBack() {
+    setState(() {
+      _url = null;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -90,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }
             else {
-              return WebView(url: _url!);
+              return WebView(url: _url!, customLastGoBack: customLastGoBack);
             }
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
