@@ -35,7 +35,6 @@ class HomeLayout {
   });
 
   factory HomeLayout.fromJson(Map<String, dynamic> json) {
-    print(json);
     return switch (json) {
       {
         'status': bool status,
@@ -126,7 +125,6 @@ class HomeLayoutWidget extends StatelessWidget {
       matrix.add(current);
       current = [];
     }
-    print(matrix);
     return matrix;
   }
 }
@@ -200,7 +198,6 @@ class GridCellWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(gridCell);
     return Container(
       margin: EdgeInsets.all(4.0),
       /*
