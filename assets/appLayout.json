@@ -1,0 +1,211 @@
+{
+    "tabs": [
+        {
+            "id": "nav-1",
+            "icon": "/images/home.png",
+            "text": "Home",
+            "color": "#0066ff",
+            "link": "#",
+            "active": true,
+            "sections": [
+            {
+              "id": "section1",
+              "title": "Browse Rapture Ready",
+              "buttons": [
+                {
+                  "id": "btn1-1",
+                  "icon": "/images/repture_ready.png",
+                  "text": "Rapture Ready",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/"
+                },
+                {
+                  "id": "btn1-2",
+                  "icon": "/images/rapture_index.png",
+                  "text": "Rapture Index",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/rapture-ready-index/"
+                },
+                {
+                  "id": "btn1-3",
+                  "icon": "/images/rr_news.png",
+                  "text": "Rapture Ready News",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/category/rapture-ready-news"
+                },
+                {
+                  "id": "btn1-4",
+                  "icon": "/images/repture_ready_tv.png",
+                  "text": "Rapture Ready TV",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.tv"
+                },
+                {
+                  "id": "btn1-5",
+                  "icon": "/images/repture_bible.png",
+                  "text": "Read Bible",
+                  "color": "#0066ff",
+                  "link": "https://www.biblegateway.com/"
+                },
+                {
+                  "id": "btn1-6",
+                  "icon": "/images/nearing_midnight.png",
+                  "text": "Nearing Midnight",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/category/nearing-midnight/"
+                },
+                {
+                  "id": "btn1-7",
+                  "icon": "/images/israel_watch.png",
+                  "text": "Israel Watch",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/category/israel-watch/"
+                },
+                {
+                  "id": "btn1-8",
+                  "icon": "/images/prayer_center.png",
+                  "text": "Prayer Center",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/prayercenter/"
+                },
+                {
+                  "id": "btn1-9",
+                  "icon": "/images/rr_forms.png",
+                  "text": "RR Forms",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureforums.com/forums/"
+                },
+                {
+                  "id": "btn1-10",
+                  "icon": "/images/vertizonatal_media.png",
+                  "text": "VertiZontal Media",
+                  "color": "#0066ff",
+                  "link": "https://www.vertizontalmedia.com"
+                },
+                {
+                  "id": "btn1-11",
+                  "icon": "/images/end_time_writers.png",
+                  "text": "End Time Writers",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/featured-end-time-writers/"
+                },
+                {
+                  "id": "btn1-12",
+                  "icon": "/images/christian_classics.png",
+                  "text": "Christian Classics",
+                  "color": "#0066ff",
+                  "link": "https://www.raptureready.com/best-christian-classics/"
+                }
+              ]
+            },
+            {
+              "id": "section2",
+              "title": "Eternity Ready Media",
+              "buttons": [
+                {
+                  "id": "btn2-1",
+                  "icon": "/images/watch_tv.png",
+                  "text": "Watch TV",
+                  "color": "#0066ff",
+                  "link": "https://eternityready.tv/live-tv"
+                },
+                {
+                  "id": "btn2-2",
+                  "icon": "/images/podcasts.png",
+                  "text": "Podcasts",
+                  "color": "#0066ff",
+                  "link": "https://www.eternityreadyradio.com/series.php"
+                },
+                {
+                  "id": "btn2-3",
+                  "icon": "/images/radio.png",
+                  "text": "Radio",
+                  "color": "#0066ff",
+                  "link": "https://listen.eternityready.com/"
+                },
+                {
+                  "id": "btn2-4",
+                  "icon": "/images/on_demand.png",
+                  "text": "On Demand",
+                  "color": "#0066ff",
+                  "link": "https://www.eternityready.com"
+                },
+                {
+                  "id": "btn2-5",
+                  "icon": "/images/tv_channels.png",
+                  "text": "TV Channels",
+                  "color": "#0066ff",
+                  "link": "https://www.eternityready.com/category.php?cat=tvnetworks"
+                },
+                {
+                  "id": "btn2-6",
+                  "icon": "/images/music_videos.png",
+                  "text": "Music Videos",
+                  "color": "#0066ff",
+                  "link": "https://www.eternityreadyradio.com"
+                }
+              ]
+            },
+            {
+              "id": "section3",
+              "title": "Connect with US",
+              "buttons": [
+                {
+                  "id": "btn3-1",
+                  "icon": "/images/contact.png",
+                  "text": "Contact",
+                  "color": "#0066ff",
+                  "link": "https://help.eternityready.com/"
+                },
+                {
+                  "id": "btn3-2",
+                  "icon": "/images/donate.png",
+                  "text": "Donate",
+                  "color": "#0066ff",
+                  "link": "https://donorbox.org/eternity-ready-radio/"
+                },
+                {
+                  "id": "btn3-3",
+                  "icon": "/images/call.png",
+                  "text": "Call US",
+                  "color": "#0066ff",
+                  "link": "#"
+                }
+              ]
+            }
+          ]
+        },
+        {
+            "id": "nav-2",
+            "icon": "/images/repture_ready.png",
+            "text": "Rapture R",
+            "color": "#888",
+            "link": "https://www.raptureready.com/",
+            "active": false
+        },
+        {
+            "id": "nav-3",
+            "icon": "/images/watch_tv.png",
+            "text": "TV",
+            "color": "#888",
+            "link": "https://eternityready.tv/live-tv",
+            "active": false
+        },
+        {
+            "id": "nav-4",
+            "icon": "/images/radio.png",
+            "text": "Radio",
+            "color": "#888",
+            "link": "https://listen.eternityready.com/",
+            "active": false
+        },
+        {
+            "id": "nav-5",
+            "icon": "/images/more.png",
+            "text": "More",
+            "color": "#888",
+            "link": "#",
+            "active": false
+        }
+    ]
+}
