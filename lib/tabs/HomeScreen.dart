@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:raptureready/utils/WebView.dart';
+import 'package:raptureready/utils/AppState.dart';
 
 Future<HomeLayout> fetchHomeLayout() async {
   final response = await http.get(
@@ -79,33 +80,23 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    futureHomeLayout = fetchHomeLayout();
   }
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
     return Center(
-      child: FutureBuilder<HomeLayout>(
-        future: futureHomeLayout,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (_url == null) {
-              return HomeLayoutWidget(
-                data: snapshot.data!.data,
-                handleLinkClicked: _handleLinkClicked,
-              );
-            }
-            else {
-              return WebView(url: _url!, customLastGoBack: customLastGoBack);
-            }
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-
-          // By default, show a loading spinner.
-          return const CircularProgressIndicator();
-        },
-      ),
+      child: (() {
+        if (_url == null) {
+          return HomeLayoutWidget(
+            data: appLayout['tabs'][0]!,
+            handleLinkClicked: _handleLinkClicked,
+          );
+        }
+        else {
+          return WebView(url: _url!, customLastGoBack: customLastGoBack);
+        }
+      })()
     );
   }
 }
