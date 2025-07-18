@@ -5,10 +5,9 @@ import 'package:flutter/services.dart' show rootBundle;
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
 
+import 'package:raptureready/utils/WebView.dart';
+
 import 'package:raptureready/tabs/HomeScreen.dart';
-import 'package:raptureready/tabs/RaptureRScreen.dart';
-import 'package:raptureready/tabs/TvScreen.dart';
-import 'package:raptureready/tabs/RadioScreen.dart';
 import 'package:raptureready/tabs/MoreScreen.dart';
 
 void main() {
@@ -62,29 +61,6 @@ class AppNavigation extends StatefulWidget {
 class _AppNavigationState extends State<AppNavigation> {
   int currentPageIndex = 0;
 
-  var tabs = [
-    {
-      'title': 'Home',
-      'screen': HomeScreen(),
-    },
-    {
-      'title': 'Rapture R',
-      'screen': RaptureRScreen(),
-    },
-    {
-      'title': 'TV',
-      'screen': TvScreen(),
-    },
-    {
-      'title': 'Radio',
-      'screen': RadioScreen(),
-    },
-    {
-      'title': 'More',
-      'screen': MoreScreen(),
-    }
-  ];
-
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
@@ -93,7 +69,7 @@ class _AppNavigationState extends State<AppNavigation> {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(tabs[currentPageIndex]['title']! as String),
+        title: Text(appLayout['tabs'][currentPageIndex]['text']! as String),
       ),
 
       bottomNavigationBar: NavigationBar(
@@ -122,9 +98,19 @@ class _AppNavigationState extends State<AppNavigation> {
         ],
       ),
       body:
-          <Widget>[
-            for (var tab in tabs) tab['screen'] as Widget
-          ][currentPageIndex],
+          (() {
+            final String link = appLayout['tabs'][currentPageIndex]['link']!;
+            if (link.startsWith('http')) {
+                return WebView(
+                  key: ValueKey(link),
+                  url: link,
+                );
+            } else if (link == "#") {
+              return HomeScreen();
+            } else if (link == "more") {
+              return MoreScreen();
+            }
+          })()
     );
   }
 }

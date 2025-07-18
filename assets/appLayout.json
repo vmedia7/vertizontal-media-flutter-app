@@ -204,7 +204,7 @@
             "icon": "/images/more.png",
             "text": "More",
             "color": "#888",
-            "link": "#",
+            "link": "more",
             "active": false
         }
     ]
