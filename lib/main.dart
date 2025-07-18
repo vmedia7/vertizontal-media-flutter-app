@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
@@ -11,42 +12,74 @@ import 'package:raptureready/tabs/HomeScreen.dart';
 import 'package:raptureready/tabs/MoreScreen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(AppStateWidget(
+    appLayout: {},
+    loaded: null,
+    child: const MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-  Future<Map<String, dynamic>> loadAppLayoutJson() async {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  Future<Map<String, dynamic>> loadAppLayoutFromLocal() async {
     String jsonString = await rootBundle.loadString('assets/appLayout.json');
     return jsonDecode(jsonString);
   }
 
+  Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
+    final response = await http.get(
+      Uri.parse('https://app.eternityready.com/data'),
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load Network Request');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAppLayoutFromLocal().then((localLayout) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        AppStateWidget.of(context).setAppState(localLayout, "local");
+
+        loadAppLayoutFromNetwork().then((networkLayout) {
+          var firstTab = localLayout['tabs'][0];
+          firstTab['sections'] = networkLayout['data']['sections'];
+          AppStateWidget.of(context).setAppState(localLayout, "network");
+        });
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    print('Executing lol');
-    return FutureBuilder<Map<String, dynamic>>(
-      future: loadAppLayoutJson(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error loading layout'));
-        } else {
-          final appLayout = snapshot.data!;
-          return AppStateWidget(
-            appLayout: snapshot.data!,
-            child: MaterialApp(
-              title: 'RaptureReady',
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              ),
-              home: AppNavigation()
-            )
-          );
-        }
-      },
+    final AppState appState = AppStateScope.of(context);
+    print(appState.loaded);
+    print(appState.appLayout);
+    if (appState.loaded == null) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    return MaterialApp(
+      title: 'RaptureReady',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: AppNavigation()
     );
   }
 }

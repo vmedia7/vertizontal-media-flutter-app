@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class AppState {
   final Map<String, dynamic> appLayout;
+  final String? loaded;
 
-  AppState({ required this.appLayout });
+  AppState({ required this.appLayout, this.loaded });
 
-  AppState copyWith({ Map<String, dynamic>? appLayout }) {
-    return AppState(appLayout: appLayout ?? this.appLayout);
+  AppState copyWith({ Map<String, dynamic>? appLayout, String? loaded}) {
+    return AppState(
+      appLayout: appLayout ?? this.appLayout,
+      loaded: loaded ?? this.loaded,
+    );
   }
 }
 
@@ -23,17 +28,20 @@ class AppStateScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AppStateScope oldWidget) {
-    return data == oldWidget.data;
+    return !mapEquals(data.appLayout, oldWidget.data.appLayout) ||
+           data.loaded != oldWidget.data.loaded;
   }
 }
 
 class AppStateWidget extends StatefulWidget {
   final Map<String, dynamic> appLayout;
+  final String? loaded;
   final Widget child;
 
   AppStateWidget({
     Key? key,
     required this.appLayout,
+    this.loaded,
     required this.child,
   }) : super(key: key);
 
@@ -52,13 +60,19 @@ class AppStateWidgetState extends State<AppStateWidget> {
   @override
   void initState() {
     super.initState();
-    _data = AppState(appLayout: this.widget.appLayout);
+    _data = AppState(
+      appLayout: this.widget.appLayout,
+      loaded: this.widget.loaded,
+    );
   }
 
-  void setAppLayout(Map<String, dynamic> newAppLayout) {
-    if (_data.appLayout != newAppLayout) {
+  void setAppState(Map<String, dynamic> newAppLayout, String newLoaded) {
+    if (_data.appLayout != newAppLayout || _data.loaded != newLoaded) {
       setState(() {
-        _data = _data.copyWith(appLayout: newAppLayout);
+        _data = _data.copyWith(
+          appLayout: newAppLayout,
+          loaded: newLoaded,
+        );
       });
     }
   }
