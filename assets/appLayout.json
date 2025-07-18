@@ -205,7 +205,44 @@
             "text": "More",
             "color": "#888",
             "link": "more",
-            "active": false
+            "active": false,
+            "sections": [
+                {
+                    "icon": "/images/videocam.png",
+                    "text": "Home",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/attach_money.png",
+                    "text": "Rapture R",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/share.png",
+                    "text": "Share",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/grade.png",
+                    "text": "Rate",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/format_paint.png",
+                    "text": "Themes",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/info.png",
+                    "text": "About",
+                    "color": "#0066ff"
+                },
+                {
+                    "icon": "/images/exit.png",
+                    "text": "Exit",
+                    "color": "#0066ff"
+                }
+            ]
         }
     ]
 }

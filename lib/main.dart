@@ -64,8 +64,6 @@ class _AppNavigationState extends State<AppNavigation> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
-    print('HELLO');
-    print(appLayout);
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(

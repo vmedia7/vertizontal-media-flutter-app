@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 
+// Local Libraries
+import 'package:raptureready/utils/AppState.dart';
+
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
 
-  @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Center(
-      child: Card(
-        shadowColor: Colors.transparent,
-        margin: const EdgeInsets.all(8.0),
-        child: SizedBox.expand(
-          child: Center(
-            child: Text(
-              'More page',
-              style: theme.textTheme.titleLarge
+    final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
+    return ListView(
+      children: <Widget>[
+        for (var section in appLayout['tabs'].last['sections']!)
+        Card(
+          child: ListTile(
+            leading: Image.asset(
+              "assets${section?['icon']}",
+              width: 24,
+              height: 24,
             ),
+            title: Text(section['text']!),
+            trailing: Icon(Icons.chevron_right),
           ),
         ),
-      )
+      ],
     );
   }
 }
