@@ -104,32 +104,21 @@ class _AppNavigationState extends State<AppNavigation> {
         },
         indicatorColor: Colors.deepPurple,
         selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home_filled),
-            icon: Icon(Icons.home_filled),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.people_alt),
-            icon: Icon(Icons.people_alt),
-            label: 'Rapture R',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.tv),
-            icon: Icon(Icons.tv),
-            label: 'TV',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.radio),
-            icon: Icon(Icons.radio),
-            label: 'Radio',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.more),
-            icon: Icon(Icons.more),
-            label: 'More',
-          ),
+        destinations: <Widget>[
+          for (var tab in appLayout?['tabs'])
+            NavigationDestination(
+              selectedIcon: Image.asset(
+                "assets${tab?['icon']}",
+                width: 24,
+                height: 24,
+              ),
+              icon: Image.asset(
+                "assets${tab?['icon']}",
+                width: 24,
+                height: 24,
+              ),
+              label: tab?['text'],
+            ),
         ],
       ),
       body:
