@@ -9,51 +9,6 @@ import 'package:raptureready/utils/WebView.dart';
 import 'package:raptureready/utils/AppState.dart';
 import 'package:raptureready/utils/Color.dart';
 
-Future<HomeLayout> fetchHomeLayout() async {
-  final response = await http.get(
-    Uri.parse('https://app.eternityready.com/data'),
-  );
-
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    return HomeLayout.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>
-    );
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load Home Layout');
-  }
-}
-
-class HomeLayout {
-  final bool status;
-  final String message;
-  final Map<String, dynamic> data;
-
-  const HomeLayout({
-    required this.status,
-    required this.message,
-    required this.data
-  });
-
-  factory HomeLayout.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'status': bool status,
-        'message': String message,
-        'data': Map<String, dynamic> data
-      } => HomeLayout(
-          status: status,
-          message: message,
-          data: data,
-        ),
-        _ => throw const FormatException('Failed to load Home Layout.'),
-    };
-  }
-}
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -62,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<HomeLayout> futureHomeLayout;
 
   String? _url;
 
