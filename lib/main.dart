@@ -92,8 +92,6 @@ class _MyAppState extends State<MyApp> {
       return Center(child: CircularProgressIndicator());
     }
 
-    print('hello world');
-    print(appState.appLayout);
     return MaterialApp(
       title: 'RaptureReady',
       theme: ThemeData(
@@ -125,6 +123,8 @@ class _AppNavigationState extends State<AppNavigation> {
     return Scaffold(
       appBar: AppBar(
         title: Text(appLayout['tabs'][currentPageIndex]['text']! as String),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
       ),
 
       bottomNavigationBar: NavigationBar(
