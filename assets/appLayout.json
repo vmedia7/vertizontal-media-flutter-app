@@ -216,7 +216,8 @@
                 {
                     "icon": "/images/attach_money.png",
                     "text": "Rapture R",
-                    "color": "#0066ff"
+                    "color": "#0066ff",
+                    "link": "https://donorbox.org/eternity-ready-radio/"
                 },
                 {
                     "icon": "/images/share.png",
