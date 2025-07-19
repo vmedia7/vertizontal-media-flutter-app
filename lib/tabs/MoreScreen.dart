@@ -60,6 +60,9 @@ class _MoreScreenState extends State<MoreScreen> {
       return;
     }
 
+    if (linkUrl == "ACTION_ABOUT") {
+      showAboutDialog(context);
+    }
 
     if (!linkUrl.startsWith("http")) {
       return;
@@ -133,6 +136,69 @@ class _MoreScreenState extends State<MoreScreen> {
       },
     );
   }
+
+  
+  void showAboutDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Center(child: Text('Rapture Ready')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Version 1.0.37',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Image.asset(
+              'assets/icon/icon.png',
+              width: 128,
+              height: 128,
+            ),
+            const SizedBox(height: 6),
+            GestureDetector(
+              onTap: () {
+                _handleLinkClicked(
+                  "ACTION_VIEW",
+                  "https://eternityready.com",
+                  "https://eternityready.com",
+                  context,
+                );
+              },
+              child: Text(
+                'Visit our website',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Powered by Eternity Ready Media',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('Cancel'),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -250,7 +250,8 @@
               {
                   "icon": "/images/info.png",
                   "text": "About",
-                  "color": "#0066ff"
+                  "color": "#0066ff",
+                  "link": "ACTION_ABOUT"
               },
               {
                   "icon": "/images/exit.png",
