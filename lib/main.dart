@@ -92,6 +92,8 @@ class _MyAppState extends State<MyApp> {
       return Center(child: CircularProgressIndicator());
     }
 
+    print('hello world');
+    print(appState.appLayout);
     return MaterialApp(
       title: 'RaptureReady',
       theme: ThemeData(

@@ -42,6 +42,10 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (linkUrl == "ACTION_THEME") {
       final selectedColor = await showColorPickerDialog(context);
+      if (selectedColor == null) {
+        return;
+      }
+
       final AppState appState = AppStateScope.of(context);
       final Map<String, dynamic> appLayout = {
         ...appState.appLayout,
@@ -53,6 +57,7 @@ class _MoreScreenState extends State<MoreScreen> {
 
       await AppLayoutCache().writeJsonToCache(appLayout);
       AppStateWidget.of(context).setAppState(appLayout, appState.loaded!);
+      return;
     }
 
 
