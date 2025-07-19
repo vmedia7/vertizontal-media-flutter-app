@@ -256,7 +256,8 @@
               {
                   "icon": "/images/exit.png",
                   "text": "Exit",
-                  "color": "#0066ff"
+                  "color": "#0066ff",
+                  "link": "ACTION_EXIT"
               }
           ]
       }

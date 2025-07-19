@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
@@ -62,6 +63,12 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (linkUrl == "ACTION_ABOUT") {
       showAboutDialog(context);
+      return;
+    }
+
+    if (linkUrl == "ACTION_EXIT") {
+      SystemNavigator.pop();
+      return;
     }
 
     if (!linkUrl.startsWith("http")) {
