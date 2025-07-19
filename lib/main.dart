@@ -94,7 +94,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'RaptureReady',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(
+            int.parse(appState.appLayout['globalTheme']['color']!, radix: 16))
+        ),
       ),
       home: AppNavigation()
     );
@@ -126,7 +128,7 @@ class _AppNavigationState extends State<AppNavigation> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.deepPurple,
+        indicatorColor: theme.primaryColor,
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           for (var tab in appLayout?['tabs'])

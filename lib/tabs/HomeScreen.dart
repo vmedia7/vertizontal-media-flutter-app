@@ -166,6 +166,7 @@ class DynamicGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     int rows = data.length;
     int columns = data.isNotEmpty ? data[0].length : 0;
 
@@ -191,7 +192,7 @@ class DynamicGrid extends StatelessWidget {
                       ),
                       Container(
                         height: 3,
-                        color: Colors.deepPurple,
+                        color: theme.primaryColor,
                       ),
                     ],
                   ),
