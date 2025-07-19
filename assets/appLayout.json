@@ -222,7 +222,10 @@
                 {
                     "icon": "/images/share.png",
                     "text": "Share",
-                    "color": "#0066ff"
+                    "color": "#0066ff",
+                    "link": "ACTION_SEND",
+                    "android": "Download Rapture Ready at: https://play.google.com/store/apps/details?id=com.wRaptureReadyEndTimesNewsProphecyDoctrineofPreTribRapture",
+                    "ios": "Download Rapture Ready at: https://apps.apple.com/us/app/rapture-ready/id6467305314"
                 },
                 {
                     "icon": "/images/grade.png",
