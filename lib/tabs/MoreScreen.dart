@@ -1,6 +1,8 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
 import 'package:raptureready/utils/WebView.dart';
@@ -26,6 +28,15 @@ class _MoreScreenState extends State<MoreScreen> {
       );
       return;
     }
+
+    if (linkUrl == "ACTION_VIEW") {
+      await launchUrl(
+        Uri.parse((Platform.isAndroid ? android : ios) ?? "https://eternityready.com"),
+        mode: LaunchMode.externalApplication
+      );
+      return;
+    }
+
 
     if (!linkUrl.startsWith("http")) {
       return;

@@ -230,7 +230,10 @@
                 {
                     "icon": "/images/grade.png",
                     "text": "Rate",
-                    "color": "#0066ff"
+                    "color": "#0066ff",
+                    "link": "ACTION_VIEW",
+                    "android": "https://play.google.com/store/apps/details?id=com.wRaptureReadyEndTimesNewsProphecyDoctrineofPreTribRapture",
+                    "ios": "https://apps.apple.com/us/app/rapture-ready/id6467305314"
                 },
                 {
                     "icon": "/images/format_paint.png",
