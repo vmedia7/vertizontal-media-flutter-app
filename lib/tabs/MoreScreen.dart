@@ -158,6 +158,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 "assets${section?['icon']}",
                 width: 24,
                 height: 24,
+                color: HexColor.fromHex(section['color']!)
               ),
               title: Text(section['text']!),
               trailing: Icon(Icons.chevron_right),
