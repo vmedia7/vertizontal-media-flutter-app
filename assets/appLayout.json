@@ -210,7 +210,8 @@
                 {
                     "icon": "/images/videocam.png",
                     "text": "Home",
-                    "color": "#0066ff"
+                    "color": "#0066ff",
+                    "link": "https://www.raptureready.tv"
                 },
                 {
                     "icon": "/images/attach_money.png",
