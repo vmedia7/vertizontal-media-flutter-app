@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:raptureready/utils/WebView.dart';
 import 'package:raptureready/utils/AppState.dart';
+import 'package:raptureready/utils/Color.dart';
 
 Future<HomeLayout> fetchHomeLayout() async {
   final response = await http.get(
@@ -262,6 +263,7 @@ class GridCellWidget extends StatelessWidget {
                   heightFactor: 0.5,
                   child: Image.network(
                     "https://app.eternityready.com/${gridCell['icon']}",
+                    color: HexColor.fromHex(gridCell['color']),
                   ),
                 ),
               ),

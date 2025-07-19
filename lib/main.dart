@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:raptureready/utils/AppState.dart';
 import 'package:raptureready/utils/WebView.dart';
 import 'package:raptureready/utils/AppLayoutCache.dart';
+import 'package:raptureready/utils/Color.dart';
 
 import 'package:raptureready/tabs/HomeScreen.dart';
 import 'package:raptureready/tabs/MoreScreen.dart';
@@ -94,8 +95,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'RaptureReady',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(
-            int.parse(appState.appLayout['globalTheme']['color']!, radix: 16))
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: HexColor.fromHex(
+            appState.appLayout['globalTheme']['color']!
+          )
         ),
       ),
       home: AppNavigation()

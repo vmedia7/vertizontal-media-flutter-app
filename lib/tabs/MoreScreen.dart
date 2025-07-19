@@ -2,11 +2,13 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:raptureready/utils/AppLayoutCache.dart';
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
 import 'package:raptureready/utils/WebView.dart';
+import 'package:raptureready/utils/AppLayoutCache.dart';
+import 'package:raptureready/utils/Color.dart';
+
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -107,7 +109,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: Color(int.parse(color, radix: 16)),
+                        color: HexColor.fromHex(color),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.black12),
                       ),
