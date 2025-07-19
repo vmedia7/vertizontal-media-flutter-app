@@ -133,7 +133,9 @@ class _AppNavigationState extends State<AppNavigation> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: theme.primaryColor,
+        indicatorColor: HexColor.fromHex(
+                          appLayout['tabs'][currentPageIndex]['color']
+                        ),
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           for (var tab in appLayout?['tabs'])

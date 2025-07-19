@@ -185,7 +185,7 @@
           "id": "nav-2",
           "icon": "/images/repture_ready.png",
           "text": "Rapture R",
-          "color": "#888",
+          "color": "#0066ff",
           "link": "https://www.raptureready.com/",
           "active": false
       },
@@ -193,7 +193,7 @@
           "id": "nav-3",
           "icon": "/images/watch_tv.png",
           "text": "TV",
-          "color": "#888",
+          "color": "#0066ff",
           "link": "https://eternityready.tv/live-tv",
           "active": false
       },
@@ -201,7 +201,7 @@
           "id": "nav-4",
           "icon": "/images/radio.png",
           "text": "Radio",
-          "color": "#888",
+          "color": "#0066ff",
           "link": "https://listen.eternityready.com/",
           "active": false
       },
@@ -209,7 +209,7 @@
           "id": "nav-5",
           "icon": "/images/more.png",
           "text": "More",
-          "color": "#888",
+          "color": "#0066ff",
           "link": "more",
           "active": false,
           "sections": [

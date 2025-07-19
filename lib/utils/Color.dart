@@ -7,8 +7,31 @@ extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {
     final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
+    hexString = hexString.replaceFirst('#', '');
+
+    if (hexString.length == 8) {
+      buffer.write(hexString);
+    }
+
+    // RRGGBB -> FFRRGGBB
+    if (hexString.length == 6) {
+      buffer.write('FF');
+      buffer.write(hexString);
+    };
+
+    // RGB -> FFRGB
+    if (hexString.length == 3) {
+      buffer.write('FF');
+    }
+
+    // Duplicate the hex
+    if (hexString.length == 3 || hexString.length == 4) {
+      for (int idx = 0; idx < hexString.length; idx++) {
+        buffer.write(hexString[idx]);
+        buffer.write(hexString[idx]);
+      }
+    }
+
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
