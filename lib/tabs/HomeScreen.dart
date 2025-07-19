@@ -129,6 +129,7 @@ class HomeLayoutWidget extends StatelessWidget {
         for (var section in data['sections']) DynamicGrid(
           data: flatToMatrix(section['buttons']!),
           header: section["title"],
+          underlineColor: section['underlineColor'],
           handleLinkClicked: handleLinkClicked,
         )
       ]
@@ -157,11 +158,13 @@ class HomeLayoutWidget extends StatelessWidget {
 class DynamicGrid extends StatelessWidget {
   final List<List<dynamic>> data;
   final String header;
+  final String underlineColor;
   final void Function(String) handleLinkClicked;
 
   DynamicGrid({
     required this.data,
     required this.header,
+    required this.underlineColor,
     required this.handleLinkClicked,
   });
 
@@ -193,7 +196,7 @@ class DynamicGrid extends StatelessWidget {
                       ),
                       Container(
                         height: 3,
-                        color: theme.primaryColor,
+                        color: HexColor.fromHex(underlineColor),
                       ),
                     ],
                   ),

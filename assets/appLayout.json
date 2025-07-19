@@ -14,6 +14,7 @@
             {
               "id": "section1",
               "title": "Browse Rapture Ready",
+              "underlineColor": "#0066ff",
               "buttons": [
                 {
                   "id": "btn1-1",
@@ -93,6 +94,7 @@
             {
               "id": "section2",
               "title": "Eternity Ready Media",
+              "underlineColor": "#0066ff",
               "buttons": [
                 {
                   "id": "btn2-1",
@@ -148,6 +150,7 @@
             {
               "id": "section3",
               "title": "Connect with US",
+              "underlineColor": "#0066ff",
               "buttons": [
                 {
                   "id": "btn3-1",
