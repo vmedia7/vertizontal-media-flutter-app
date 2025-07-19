@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
-
 import 'package:raptureready/utils/WebView.dart';
+import 'package:raptureready/utils/AppLayoutCache.dart';
 
 import 'package:raptureready/tabs/HomeScreen.dart';
 import 'package:raptureready/tabs/MoreScreen.dart';
@@ -29,14 +29,28 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   Future<Map<String, dynamic>> loadAppLayoutFromLocal() async {
-    String jsonString = await rootBundle.loadString('assets/appLayout.json');
-    return jsonDecode(jsonString);
+    // Read first rrom Cache and then Assets
+    try {
+      print('Loading layout from cache');
+      Map<String, dynamic> appLayout = (
+        await AppLayoutCache().readJsonFromCache()
+      );
+
+      return appLayout;
+
+    } catch (e) {
+      print('Loading layout from assets');
+      String jsonString = await rootBundle.loadString('assets/appLayout.json');
+      return jsonDecode(jsonString);
+    }
   }
 
   Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
     final response = await http.get(
       Uri.parse('https://app.eternityready.com/data'),
     );
+
+    throw Exception('Failed to load Network Request');
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -49,27 +63,30 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<void> _initAsync() async {
+    final localLayout = await loadAppLayoutFromLocal();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      AppStateWidget.of(context).setAppState(localLayout, "local");
+
+      final networkLayout = await loadAppLayoutFromNetwork();
+      final firstTab = localLayout['tabs'][0];
+      firstTab['sections'] = networkLayout['data']['sections'];
+
+      AppStateWidget.of(context).setAppState(localLayout, "network");
+      await AppLayoutCache().writeJsonToCache(localLayout);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    loadAppLayoutFromLocal().then((localLayout) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        AppStateWidget.of(context).setAppState(localLayout, "local");
-
-        loadAppLayoutFromNetwork().then((networkLayout) {
-          var firstTab = localLayout['tabs'][0];
-          firstTab['sections'] = networkLayout['data']['sections'];
-          AppStateWidget.of(context).setAppState(localLayout, "network");
-        });
-      });
-    });
+    _initAsync();
   }
 
   @override
   Widget build(BuildContext context) {
     final AppState appState = AppStateScope.of(context);
-    print(appState.loaded);
-    print(appState.appLayout);
     if (appState.loaded == null) {
       return Center(child: CircularProgressIndicator());
     }
