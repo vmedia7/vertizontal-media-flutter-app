@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "83372535506",
+    "project_id": "notes-cf529",
+    "storage_bucket": "notes-cf529.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83372535506:android:b97afc8fc87f7c3d70870b",
+        "android_client_info": {
+          "package_name": "com.example.raptureready"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR6FE3xNlS_vfp1TMnfXOwehkhYb3l3yg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

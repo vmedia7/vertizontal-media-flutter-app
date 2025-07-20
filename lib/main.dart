@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
@@ -12,7 +14,14 @@ import 'package:raptureready/utils/Color.dart';
 import 'package:raptureready/tabs/HomeScreen.dart';
 import 'package:raptureready/tabs/MoreScreen.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(AppStateWidget(
     appLayout: {},
     loaded: null,
