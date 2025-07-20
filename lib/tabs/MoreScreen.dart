@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 // Local Libraries
 import 'package:raptureready/utils/AppState.dart';
@@ -62,7 +63,7 @@ class _MoreScreenState extends State<MoreScreen> {
     }
 
     if (linkUrl == "ACTION_ABOUT") {
-      showAboutDialog(context);
+      await showAboutDialog(context);
       return;
     }
 
@@ -145,7 +146,8 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   
-  void showAboutDialog(BuildContext context) async {
+  Future<void> showAboutDialog(BuildContext context) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -155,7 +157,7 @@ class _MoreScreenState extends State<MoreScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Version 1.0.37',
+              'Version ${packageInfo.version}',
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
