@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
       return appLayout;
 
     } catch (e) {
-      print('Loading layout from assets');
+      print('Loading from cache failed, now loading layout from assets');
       String jsonString = await rootBundle.loadString('assets/appLayout.json');
       return jsonDecode(jsonString);
     }
@@ -50,8 +50,6 @@ class _MyAppState extends State<MyApp> {
     final response = await http.get(
       Uri.parse('https://app.eternityready.com/data'),
     );
-
-    throw Exception('Failed to load Network Request');
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -72,6 +70,13 @@ class _MyAppState extends State<MyApp> {
 
       final networkLayout = await loadAppLayoutFromNetwork();
       final firstTab = localLayout['tabs'][0];
+      for (int idx = 0; idx < networkLayout['data']['sections'].length; idx++) {
+        networkLayout['data']['sections'][idx] = {
+          ...networkLayout['data']['sections'][idx],
+          "underlineColor": "#0066ff",
+        };
+      }
+
       firstTab['sections'] = networkLayout['data']['sections'];
 
       AppStateWidget.of(context).setAppState(localLayout, "network");
@@ -91,6 +96,8 @@ class _MyAppState extends State<MyApp> {
     if (appState.loaded == null) {
       return Center(child: CircularProgressIndicator());
     }
+
+    print(appState.loaded);
 
     return MaterialApp(
       title: 'RaptureReady',

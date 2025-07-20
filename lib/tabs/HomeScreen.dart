@@ -78,7 +78,6 @@ class HomeLayoutWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(data['sections']);
     return ListView(
       children: [
         for (var section in data['sections']) DynamicGrid(
