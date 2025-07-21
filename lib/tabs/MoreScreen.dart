@@ -151,7 +151,7 @@ class _MoreScreenState extends State<MoreScreen> {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Center(child: Text('Rapture Ready')),
+        title: Center(child: Text(packageInfo.appName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
