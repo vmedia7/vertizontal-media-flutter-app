@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
     final response = await http.get(
-      Uri.parse('https://app.eternityready.com/data'),
+      Uri.parse('https://777.vertizontalmedia.com/data'),
     );
 
     if (response.statusCode == 200) {

@@ -222,7 +222,7 @@ class GridCellWidget extends StatelessWidget {
                   widthFactor: 0.5,
                   heightFactor: 0.5,
                   child: Image.network(
-                    "https://app.eternityready.com/${gridCell['icon']}",
+                    "https://777.vertizontalmedia.com/${gridCell['icon']}",
                     color: HexColor.fromHex(gridCell['color']),
                   ),
                 ),
