@@ -109,7 +109,7 @@ class _MyAppState extends State<MyApp> {
     print(appState.loaded);
 
     return MaterialApp(
-      title: 'RaptureReady',
+      title: 'VertiZontal Media',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: HexColor.fromHex(
