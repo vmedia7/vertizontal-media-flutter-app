@@ -6,13 +6,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 
 // Local Libraries
-import 'package:raptureready/utils/AppState.dart';
-import 'package:raptureready/utils/WebView.dart';
-import 'package:raptureready/utils/AppLayoutCache.dart';
-import 'package:raptureready/utils/Color.dart';
+import 'utils/AppState.dart';
+import 'utils/WebView.dart';
+import 'utils/AppLayoutCache.dart';
+import 'utils/Color.dart';
 
-import 'package:raptureready/tabs/HomeScreen.dart';
-import 'package:raptureready/tabs/MoreScreen.dart';
+import 'tabs/HomeScreen.dart';
+import 'tabs/MoreScreen.dart';
 
 import 'firebase_options.dart';
 

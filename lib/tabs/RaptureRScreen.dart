@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:raptureready/utils/WebView.dart';
+import '../utils/WebView.dart';
 
 class RaptureRScreen extends StatelessWidget {
   const RaptureRScreen({super.key});

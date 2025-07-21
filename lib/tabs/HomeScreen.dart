@@ -5,9 +5,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:raptureready/utils/WebView.dart';
-import 'package:raptureready/utils/AppState.dart';
-import 'package:raptureready/utils/Color.dart';
+import '../utils/WebView.dart';
+import '../utils/AppState.dart';
+import '../utils/Color.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

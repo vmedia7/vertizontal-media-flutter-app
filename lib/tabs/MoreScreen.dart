@@ -6,10 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 // Local Libraries
-import 'package:raptureready/utils/AppState.dart';
-import 'package:raptureready/utils/WebView.dart';
-import 'package:raptureready/utils/AppLayoutCache.dart';
-import 'package:raptureready/utils/Color.dart';
+import '../utils/AppState.dart';
+import '../utils/WebView.dart';
+import '../utils/AppLayoutCache.dart';
+import '../utils/Color.dart';
 
 
 class MoreScreen extends StatefulWidget {
