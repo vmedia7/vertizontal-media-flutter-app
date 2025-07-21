@@ -78,15 +78,18 @@ class HomeLayoutWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        for (var section in data['sections']) DynamicGrid(
-          data: flatToMatrix(section['buttons']!),
-          header: section["title"],
-          underlineColor: section['underlineColor'],
-          handleLinkClicked: handleLinkClicked,
-        )
-      ]
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (var section in data['sections'])
+            DynamicGrid(
+              data: flatToMatrix(section['buttons']!),
+              header: section["title"],
+              underlineColor: section['underlineColor'],
+              handleLinkClicked: handleLinkClicked,
+            ),
+        ],
+      ),
     );
   }
 
@@ -164,7 +167,7 @@ class DynamicGrid extends StatelessWidget {
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              childAspectRatio: 1.5,
+              childAspectRatio: 1.65,
             ),
             itemCount: rows * columns,
             itemBuilder: (context, index) {
@@ -199,12 +202,10 @@ class GridCellWidget extends StatelessWidget {
       },
       child: Container(
         margin: EdgeInsets.all(4.0),
-        /*
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        */
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
