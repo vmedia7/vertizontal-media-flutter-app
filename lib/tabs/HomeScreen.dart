@@ -202,10 +202,12 @@ class GridCellWidget extends StatelessWidget {
       },
       child: Container(
         margin: EdgeInsets.all(4.0),
+        /*
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
+        */
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
