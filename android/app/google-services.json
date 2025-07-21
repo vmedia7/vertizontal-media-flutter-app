@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "83372535506",
-    "project_id": "notes-cf529",
-    "storage_bucket": "notes-cf529.firebasestorage.app"
+    "project_number": "195650355363",
+    "project_id": "vertizontal-media",
+    "storage_bucket": "vertizontal-media.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:83372535506:android:b97afc8fc87f7c3d70870b",
+        "mobilesdk_app_id": "1:195650355363:android:5aacc858e9341115b83f16",
         "android_client_info": {
-          "package_name": "com.example.raptureready"
+          "package_name": "com.wVertiZontalMedia"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCR6FE3xNlS_vfp1TMnfXOwehkhYb3l3yg"
+          "current_key": "AIzaSyAOpNjMzGlw80fxO2Ygl6oM5UsfSurR7zI"
         }
       ],
       "services": {
