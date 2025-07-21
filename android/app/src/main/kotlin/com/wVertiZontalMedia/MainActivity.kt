@@ -1,4 +1,4 @@
-package com.example.raptureready
+package com.wVertiZontalMedia
 
 import io.flutter.embedding.android.FlutterActivity
 

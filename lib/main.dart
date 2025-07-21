@@ -5,11 +5,13 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 
+
 // Local Libraries
 import 'utils/AppState.dart';
 import 'utils/WebView.dart';
 import 'utils/AppLayoutCache.dart';
 import 'utils/Color.dart';
+import 'utils/NotificationService.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';
@@ -18,9 +20,12 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await NotificationService.instance.initialize();
 
   runApp(AppStateWidget(
     appLayout: {},
