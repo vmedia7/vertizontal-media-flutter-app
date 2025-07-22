@@ -164,7 +164,7 @@ class DynamicGrid extends StatelessWidget {
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              childAspectRatio: 1.85,
+              childAspectRatio: 2,
             ),
             itemCount: rows * columns,
             itemBuilder: (context, index) {
