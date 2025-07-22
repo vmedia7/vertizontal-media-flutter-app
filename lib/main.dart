@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 
 // Local Libraries
@@ -19,7 +20,8 @@ import 'tabs/MoreScreen.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -76,27 +78,28 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  
   Future<void> _initAsync() async {
     final localLayout = await loadAppLayoutFromLocal();
+    AppStateWidget.of(context).setAppState(localLayout, "local");
+    FlutterNativeSplash.remove();
+    
+    // Do background network work, update afterwards
+    final networkLayout = await loadAppLayoutFromNetwork();
+    final firstTab = localLayout['tabs'][0];
+    for (int idx = 0; idx < networkLayout['data']['sections'].length; idx++) {
+      networkLayout['data']['sections'][idx] = {
+        ...networkLayout['data']['sections'][idx],
+        "underlineColor": "#0066ff",
+      };
+    }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      AppStateWidget.of(context).setAppState(localLayout, "local");
+    firstTab['sections'] = networkLayout['data']['sections'];
 
-      final networkLayout = await loadAppLayoutFromNetwork();
-      final firstTab = localLayout['tabs'][0];
-      for (int idx = 0; idx < networkLayout['data']['sections'].length; idx++) {
-        networkLayout['data']['sections'][idx] = {
-          ...networkLayout['data']['sections'][idx],
-          "underlineColor": "#0066ff",
-        };
-      }
-
-      firstTab['sections'] = networkLayout['data']['sections'];
-
-      AppStateWidget.of(context).setAppState(localLayout, "network");
-      await AppLayoutCache().writeJsonToCache(localLayout);
-    });
+    AppStateWidget.of(context).setAppState(localLayout, "network");
+    await AppLayoutCache().writeJsonToCache(localLayout);
   }
+
 
   @override
   void initState() {
