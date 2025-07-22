@@ -40,19 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
-    return Center(
-      child: (() {
-        if (_url == null) {
-          return HomeLayoutWidget(
-            data: appLayout['tabs'][0]!,
-            handleLinkClicked: _handleLinkClicked,
-          );
-        }
-        else {
-          return WebView(url: _url!, customLastGoBack: customLastGoBack);
-        }
-      })()
-    );
+    if (_url == null) {
+      return HomeLayoutWidget(
+        data: appLayout['tabs'][0]!,
+        handleLinkClicked: _handleLinkClicked,
+      );
+    }
+
+    else {
+      return WebView(url: _url!, customLastGoBack: customLastGoBack);
+    }
   }
 }
 
@@ -167,7 +164,7 @@ class DynamicGrid extends StatelessWidget {
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              childAspectRatio: 1.65,
+              childAspectRatio: 1.85,
             ),
             itemCount: rows * columns,
             itemBuilder: (context, index) {
@@ -201,13 +198,11 @@ class GridCellWidget extends StatelessWidget {
         handleLinkClicked(gridCell['link']);
       },
       child: Container(
-        margin: EdgeInsets.all(4.0),
-        /*
+        // margin: EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        */
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -215,8 +210,8 @@ class GridCellWidget extends StatelessWidget {
             children: [
               Container(
                 constraints: BoxConstraints(
-                  maxHeight: 60,
-                  maxWidth: 60,
+                  maxHeight: 72,
+                  maxWidth: 72,
                 ),
                 child: FractionallySizedBox(
                   widthFactor: 0.5,
@@ -230,6 +225,7 @@ class GridCellWidget extends StatelessWidget {
               Text(
                 gridCell['text'].toString(),
                 style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
               ),
             ]
           )
