@@ -129,7 +129,7 @@ class DynamicGrid extends StatelessWidget {
     int columns = data.isNotEmpty ? data[0].length : 0;
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0),
+      margin: EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,13 +158,13 @@ class DynamicGrid extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 6),
           GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              childAspectRatio: 2,
+              childAspectRatio: 1.8,
             ),
             itemCount: rows * columns,
             itemBuilder: (context, index) {
@@ -198,11 +198,13 @@ class GridCellWidget extends StatelessWidget {
         handleLinkClicked(gridCell['link']);
       },
       child: Container(
-        // margin: EdgeInsets.all(4.0),
+        /*
+        margin: EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
+        */
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
