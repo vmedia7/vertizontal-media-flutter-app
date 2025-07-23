@@ -41,9 +41,31 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
     if (_url == null) {
-      return HomeLayoutWidget(
-        data: appLayout['tabs'][0]!,
-        handleLinkClicked: _handleLinkClicked,
+      final List<List<List<Map<String, dynamic>>>> matrixList = [
+        for (var section in appLayout['tabs'][0]['sections']!)
+          flatToMatrix((section['buttons']! as List)
+            .cast<Map<String, dynamic>>()
+          )
+      ];
+
+      final List<Map<String, dynamic>> headers = [
+        for (var section in appLayout['tabs'][0]['sections']!)
+        {
+          'title': section['title']!,
+          'underlineColor': section['underlineColor']!,
+        }
+      ];
+
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 0,
+          vertical: 24
+        ),
+        child: HomeLayoutWidget(
+          matrixList: matrixList,
+          headers: headers,
+          handleLinkClicked: _handleLinkClicked,
+        )
       );
     }
 
@@ -51,50 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
       return WebView(url: _url!, customLastGoBack: customLastGoBack);
     }
   }
-}
 
-class MatrixCell {
-  final String name;
-  final String value;
-
-  MatrixCell({
-    required this.name,
-    required this.value,
-  });
-}
-
-class HomeLayoutWidget extends StatelessWidget {
-  Map<String, dynamic> data;
-  final void Function(String) handleLinkClicked;
-
-  HomeLayoutWidget({
-    super.key,
-    required this.data,
-    required this.handleLinkClicked,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          for (var section in data['sections'])
-            DynamicGrid(
-              data: flatToMatrix(section['buttons']!),
-              header: section["title"],
-              underlineColor: section['underlineColor'],
-              handleLinkClicked: handleLinkClicked,
-            ),
-        ],
-      ),
-    );
-  }
-
-  List<List<dynamic>> flatToMatrix(List<dynamic> buttons) {
+  List<List<Map<String, dynamic>>> flatToMatrix(
+    List<Map<String, dynamic>> buttons
+  ) {
     int rows = sqrt(buttons.length).toInt();
     int columns = (buttons.length / rows).toInt();
-    List<List<dynamic>> matrix = [];
-    List<dynamic> current = [];
+    List<List<Map<String, dynamic>>> matrix = [];
+    List<Map<String, dynamic>> current = [];
     int current_idx = 0;
 
     for (var row = 0; row < rows; row++) {
@@ -109,130 +95,192 @@ class HomeLayoutWidget extends StatelessWidget {
   }
 }
 
-class DynamicGrid extends StatelessWidget {
-  final List<List<dynamic>> data;
-  final String header;
-  final String underlineColor;
+class HomeLayoutWidget extends StatelessWidget {
+  List<Map<String, dynamic>> headers;
+  List<List<List<Map<String, dynamic>>>> matrixList;
   final void Function(String) handleLinkClicked;
 
-  DynamicGrid({
-    required this.data,
-    required this.header,
-    required this.underlineColor,
+  HomeLayoutWidget({
+    super.key,
+    required this.matrixList,
+    required this.headers,
+    required this.handleLinkClicked,
+  });
+
+  final double headerHeight = 40;
+  final double verticalMargin = 18;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int numMatrices = matrixList.length;
+
+        double totalVerticalMargin = (numMatrices - 1) * verticalMargin;
+        double totalHeaderHeight = numMatrices * headerHeight;
+
+        double usableHeight =
+            constraints.maxHeight - totalVerticalMargin - totalHeaderHeight;
+
+        double matrixHeight = usableHeight / numMatrices;
+        double matrixWidth = constraints.maxWidth;
+
+        int maxRows = 0;
+        int maxColumns = 0;
+
+        int totalRows = 0;
+        for (var matrix in matrixList) {
+          int rows = matrix.length;
+          int cols = matrix.map((row) => row.length).reduce(
+            (a, b) => a > b ? a : b
+          );
+          totalRows += rows;
+          maxRows = max(maxRows, rows);
+          maxColumns = max(maxColumns, cols);
+        }
+        
+        double cellHeight = usableHeight / totalRows;
+        double cellWidth = matrixWidth / maxColumns;
+
+        return Column(
+          children: List.generate(numMatrices, (index) {
+            final matrix = matrixList[index];
+            final header = headers[index]['title'];
+            final underlineColor = headers[index]['underlineColor'];
+
+            return Container(
+              margin: EdgeInsets.only(
+                bottom: index < numMatrices - 1 ? verticalMargin : 0
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: headerHeight,
+                    child: IntrinsicWidth(
+                      child: Column(
+                        children: [
+                          Text(
+                            header,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            height: 3,
+                            color: HexColor.fromHex(underlineColor)
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  MatrixGrid(
+                    matrix: matrix,
+                    cellWidth: cellWidth,
+                    cellHeight: cellHeight,
+                    handleLinkClicked: handleLinkClicked,
+                  ),
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class MatrixGrid extends StatelessWidget {
+  final List<List<Map<String, dynamic>>> matrix;
+  final double cellWidth;
+  final double cellHeight;
+  final void Function(String) handleLinkClicked;
+
+  const MatrixGrid({
+    super.key,
+    required this.matrix,
+    required this.cellWidth,
+    required this.cellHeight,
     required this.handleLinkClicked,
   });
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    int rows = data.length;
-    int columns = data.isNotEmpty ? data[0].length : 0;
+    int rows = matrix.length;
+    int cols = matrix.map((row) => row.length).reduce((a, b) => a > b ? a : b);
 
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+    return SizedBox(
+      width: cellWidth * cols,
+      height: cellHeight * rows,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IntrinsicWidth(
-                  child: Column(
-                    children: [
-                      Text(
-                        header,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Container(
-                        height: 3,
-                        color: HexColor.fromHex(underlineColor),
-                      ),
-                    ],
+        children: List.generate(rows, (i) {
+          return Row(
+            children: List.generate(cols, (j) {
+
+              final cell = (i < matrix.length && j < matrix[i].length)
+                  ? matrix[i][j]
+                  : null;
+
+              return GestureDetector(
+                onTap: () {
+                  if (cell != null) {
+                    handleLinkClicked(cell['link']);
+                  }
+                },
+                child: Container(
+
+                  width: cellWidth,
+                  height: cellHeight,
+                  /*
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 6),
-          GridView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              childAspectRatio: 1.8,
-            ),
-            itemCount: rows * columns,
-            itemBuilder: (context, index) {
-              int row = index ~/ columns;
-              int col = index % columns;
-              return GridCellWidget(
-                gridCell: data[row][col],
-                handleLinkClicked: handleLinkClicked
+                  */
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2
+                  ),
+                  child: cell == null 
+                    ? const SizedBox.shrink()
+                    : Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Image.network(
+                                  "https://777.vertizontalmedia.com/${cell['icon']}",
+                                  color: HexColor.fromHex(cell['color']),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Center(
+                              child: Text(
+                                cell['text'],
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),            
+                )
               );
-            },
-          ),
-        ],
+            }),
+          );
+        }),
       ),
     );
   }
 }
 
-class GridCellWidget extends StatelessWidget {
-  dynamic gridCell;
-  final void Function(String) handleLinkClicked;
-
-  GridCellWidget({
-    required this.gridCell,
-    required this.handleLinkClicked,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        handleLinkClicked(gridCell['link']);
-      },
-      child: Container(
-        /*
-        margin: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        */
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: 72,
-                  maxWidth: 72,
-                ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.5,
-                  heightFactor: 0.5,
-                  child: Image.network(
-                    "https://777.vertizontalmedia.com/${gridCell['icon']}",
-                    color: HexColor.fromHex(gridCell['color']),
-                  ),
-                ),
-              ),
-              Text(
-                gridCell['text'].toString(),
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ]
-          )
-        ),
-      )
-    );
-  }
-}
