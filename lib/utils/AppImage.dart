@@ -10,9 +10,9 @@ import 'package:http/http.dart' as http;
 
 import './AppState.dart';
 
+
 class AppImage extends StatefulWidget {
   final String path;
-
   final double? width;
   final double? height;
   final Color? color;
@@ -30,117 +30,124 @@ class AppImage extends StatefulWidget {
 }
 
 class _AppImageState extends State<AppImage> {
-  Future<Uint8List>? _futureBytes;
+  late Future<Uint8List> _futureBytes;
+  Uint8List? _cachedBytes;
+  String _loadType = "local";
+  String? _failed;
 
-  Future<Uint8List> _loadImage(String path, String loadedState) async {
+  @override
+  void initState() {
+    super.initState();
+    _futureBytes = _loadImage(widget.path, _loadType);
+  }
+
+  Future<Uint8List> _loadImage(String path, String loadType) async {
     final AppImageCache imageCache = AppImageCache();
-    if (loadedState == "assets") {
-      final assetPath = "assets${path}";
-      print("Loading image from assets folder ${assetPath}");
-      ByteData byteData = await rootBundle.load("${assetPath}");
-      final data = byteData.buffer.asUint8List();
-      await imageCache.writeImageToCache(path, data);
-      return data;
+    if (loadType == "local") {
+      try {
+        final bytes = await imageCache.readImageFromCache(path);
+        return bytes;
+      } catch (_) {
+        final assetPath = "assets$path";
+        ByteData byteData = await rootBundle.load(assetPath);
+        final data = byteData.buffer.asUint8List();
+        await imageCache.writeImageToCache(path, data);
+        return data;
+      }
     }
 
-    try {
-      print("Loading Image from cache folder ${path}");
-      final bytes = await imageCache.readImageFromCache(path);
-      return bytes;
-
-    } catch (e) {
-      print('Loading from cache failed, now loading image from network');
-
-      final response = await http.get(Uri.parse(
-          "https://777.vertizontalmedia.com/${path}"
-      ));
-      if (response.statusCode == 200) {
-
-        final Uint8List responseBytes = response.bodyBytes;
-        await imageCache.writeImageToCache(path, responseBytes);
-        return responseBytes;
-
-      } else {
-        throw Exception(
-          'Failed to load image, status code: ${response.statusCode}'
-        );
-      }
+    final response = await http.get(Uri.parse("https://777.vertizontalmedia.com/$path"));
+    if (response.statusCode == 200) {
+      await imageCache.writeImageToCache(path, response.bodyBytes);
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image, status: ${response.statusCode}');
     }
   }
 
+  void _switchToNetworkLoad(Uint8List? currentData, [String? failedStage]) {
+    if (mounted) {
+      setState(() {
+        _loadType = "network";
+        _failed = failedStage;
+        _cachedBytes = currentData;
+        _futureBytes = _loadImage(widget.path, "network");
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    _futureBytes ??= _loadImage(
-      this.widget.path,
-      AppStateScope.of(context).loaded!
-    );
-
     return FutureBuilder<Uint8List>(
       future: _futureBytes,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return SizedBox(
-            width: widget.width ?? 24,
-            height: widget.height ?? 24,
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          );
-
+          return _cachedBytes != null ? _successWidget(_cachedBytes!) : _waitingWidget();
         } else if (snapshot.hasError) {
-          print(snapshot.error);
-          return Icon(
-            Icons.error,
-            size: (widget.width != null && widget.height != null)
-              ? min(widget.width!, widget.height!)
-              : 24,
-            color: Colors.red,
-          );
-
+          if (_loadType == "local" && _failed == null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _switchToNetworkLoad(null, "local");
+            });
+            return _waitingWidget();
+          } else if (_loadType == "network" && _failed == null) {
+            return _cachedBytes != null ? _successWidget(_cachedBytes!) : _failureWidget();
+          }
+          return _failureWidget();
         } else if (snapshot.hasData) {
-          return Image.memory(
-            snapshot.data!,
-            width: widget.width,
-            height: widget.height,
-            color: widget.color,
-          );
+          if (_loadType == "local") {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _switchToNetworkLoad(snapshot.data, null);
+            });
+          }
+          return _successWidget(snapshot.data!);
         }
-
-        else {
-          return Icon(
-            Icons.info,
-            size: (widget.width != null && widget.height != null)
-              ? min(widget.width!, widget.height!)
-              : 24,
-            color: Colors.red,
-          );
-        }
+        return _failureWidget();
       },
+    );
+  }
+
+  Widget _successWidget(Uint8List data) {
+    return RepaintBoundary(
+      child: Image.memory(
+        data,
+        width: widget.width,
+        height: widget.height,
+        color: widget.color,
+      ),
+    );
+  }
+
+  Widget _waitingWidget() {
+    return SizedBox(
+      width: widget.width ?? 24,
+      height: widget.height ?? 24,
+      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+    );
+  }
+
+  Widget _failureWidget() {
+    return Icon(
+      Icons.info,
+      size: (widget.width != null && widget.height != null) ? min(widget.width!, widget.height!) : 24,
+      color: Colors.red,
     );
   }
 }
 
 class AppImageCache {
-  // Get cache directory path
-  Future<String> get _localPath async {
-    final directory = await getTemporaryDirectory();
-    return directory.path;
-  }
+  Future<String> get _localPath async => (await getTemporaryDirectory()).path;
 
-  // Read image bytes from cache as Uint8List
   Future<Uint8List> readImageFromCache(String path) async {
-    final String localPath = await _localPath;
-    final newPath = path.replaceAll('/', '.');
-    final file = File('$localPath/${newPath}');
-    print(file);
+    final localPath = await _localPath;
+    final filename = path.replaceAll('/', '.');
+    final file = File('$localPath/$filename');
     return await file.readAsBytes();
   }
 
-  // Write image bytes (Uint8List) to cache file
   Future<File> writeImageToCache(String path, Uint8List bytes) async {
-    final String localPath = await _localPath;
-    final newPath = path.replaceAll('/', '.');
-    final file = File('$localPath/${newPath}');
+    final localPath = await _localPath;
+    final filename = path.replaceAll('/', '.');
+    final file = File('$localPath/$filename');
     return await file.writeAsBytes(bytes, flush: true);
   }
 }
-
