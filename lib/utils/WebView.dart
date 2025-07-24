@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/services.dart';
 
+import './GlobalControllers.dart';
+
 class WebView extends StatefulWidget {
   final String url;
   final void Function()? customLastGoBack;
@@ -40,6 +42,7 @@ class _WebViewState extends State<WebView> {
       ..loadRequest(
         Uri.parse(this.widget.url),
       );
+    webViewControllers.add(controller);
   }
 
   @override

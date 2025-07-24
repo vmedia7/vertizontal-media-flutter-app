@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/widgets.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 
 // Local Libraries
@@ -16,6 +19,7 @@ import 'utils/AppImage.dart';
 import 'utils/NotificationService.dart';
 import 'utils/Constants.dart';
 import 'utils/LayoutLoaders.dart';
+import 'utils/GlobalControllers.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';
@@ -25,6 +29,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -46,8 +51,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> _initAsync() async {
     Map<String, dynamic> localLayout;
     String loaded;
@@ -62,6 +66,7 @@ class _MyAppState extends State<MyApp> {
 
     AppStateWidget.of(context).setAppState(localLayout, loaded);
     FlutterNativeSplash.remove();
+
     
     // Do background network work, update afterwards
     final networkLayout = await loadAppLayoutFromNetwork();
@@ -106,16 +111,60 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _clearTemporaryCache();
     _initAsync();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+      state == AppLifecycleState.detached) {
+      _clearTemporaryCache();
+    }
+  }
+
+  Future<void> _clearTemporaryCache() async {
+    print('Clearing cache');
+
+    // Clear WebView cache on all controllers
+    for (var controller in webViewControllers) {
+      try {
+        await controller.clearCache();
+      } catch (e) {
+        print('Error clearing WebView controller cache: $e');
+      }
+    }
+
+    // Clear cookies globally
+    try {
+      await WebViewCookieManager().clearCookies();
+    } catch (e) {
+      print('Error clearing WebView cookies: $e');
+    }
+
+    // Clear the temp directory as before
+    try {
+      final tempDir = await getTemporaryDirectory();
+      if (tempDir.existsSync()) {
+        await tempDir.delete(recursive: true);
+        print('Temporary cache folder cleared.');
+      }
+    } catch (e) {
+      print('Error clearing cache folder: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final AppState appState = AppStateScope.of(context);
     if (appState.loaded == null) {
       return Center(child: CircularProgressIndicator());
     }
-
     print(appState.loaded);
 
     return MaterialApp(
