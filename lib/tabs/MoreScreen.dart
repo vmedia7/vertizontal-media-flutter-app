@@ -211,6 +211,20 @@ class _MoreScreenState extends State<MoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
+    var moreTab;
+
+    for (var tab in appLayout['tabs']!) {
+      if (tab['text']!.toLowerCase() == "more") {
+        moreTab = tab;
+      }
+    }
+    if (moreTab == null) {
+      return Center(
+        child: Text("No 'More' Tab was found on tabs")
+      );
+    }
+
     if (_url != null) {
       return WebView(
         url: _url!,
@@ -219,10 +233,9 @@ class _MoreScreenState extends State<MoreScreen> {
       );
     }
 
-    final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
     return ListView(
       children: <Widget>[
-        for (var section in appLayout['tabs'].last['sections']!)
+        for (var section in moreTab['sections'])
         Card(
           child: GestureDetector(
            onTap: () {
