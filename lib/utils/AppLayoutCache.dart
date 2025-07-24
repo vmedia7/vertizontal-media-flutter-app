@@ -6,7 +6,7 @@ class AppLayoutCache {
 
   // Get cache directory path
   Future<String> get _localPath async {
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
@@ -29,4 +29,3 @@ class AppLayoutCache {
     return file.writeAsString(jsonEncode(jsonData));
   }
 }
-

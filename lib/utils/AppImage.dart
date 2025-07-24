@@ -136,7 +136,12 @@ class _AppImageState extends State<AppImage> {
 }
 
 class AppImageCache {
-  Future<String> get _localPath async => (await getTemporaryDirectory()).path;
+
+  // Get cache directory path
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
 
   Future<Uint8List> readImageFromCache(String path) async {
     final localPath = await _localPath;
