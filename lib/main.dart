@@ -14,6 +14,7 @@ import 'utils/AppLayoutCache.dart';
 import 'utils/Color.dart';
 import 'utils/AppImage.dart';
 import 'utils/NotificationService.dart';
+import 'utils/Constants.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';
@@ -61,9 +62,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
-    final response = await http.get(
-      Uri.parse('https://777.vertizontalmedia.com/data'),
-    );
+    final response = await http.get(Uri.parse('${BACKEND_URL}/data'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,

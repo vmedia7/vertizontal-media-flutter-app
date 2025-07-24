@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
 import './AppState.dart';
+import './Constants.dart';
 
 
 class AppImage extends StatefulWidget {
@@ -56,7 +57,7 @@ class _AppImageState extends State<AppImage> {
       }
     }
 
-    final response = await http.get(Uri.parse("https://777.vertizontalmedia.com/$path"));
+    final response = await http.get(Uri.parse("${BACKEND_URL}/${path}"));
     if (response.statusCode == 200) {
       await imageCache.writeImageToCache(path, response.bodyBytes);
       return response.bodyBytes;
