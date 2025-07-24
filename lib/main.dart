@@ -104,6 +104,29 @@ class _MyAppState extends State<MyApp> {
 
     firstTab['sections'] = networkLayout['data']['sections'];
 
+    localLayout['tabs'] = [
+      for (var tab in localLayout['tabs'])
+        if (
+          tab['text']!.toLowerCase() == "home" ||
+          tab['text']!.toLowerCase() == "more"
+          ) tab
+    ];
+    print(localLayout['tabs']);
+
+    var insertAt = 0;
+    for (int idx = 0; idx < networkLayout['data']['bottomNav'].length; idx++) {
+      var networkTab = networkLayout['data']['bottomNav'][idx]!;
+      if (networkTab['text'].toLowerCase() == "home") {
+        continue;
+      }
+
+      localLayout['tabs'].insert(insertAt + 1, {
+        ...networkTab,
+        'color': "#0066ff",
+      });
+      insertAt += 1;
+    }
+
     AppStateWidget.of(context).setAppState(localLayout, "network");
     await AppLayoutCache().writeJsonToCache(localLayout);
   }
