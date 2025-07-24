@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../utils/WebView.dart';
 import '../utils/AppState.dart';
 import '../utils/Color.dart';
+import '../utils/AppImage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -206,6 +207,7 @@ class MatrixGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     int rows = matrix.length;
     int cols = matrix.map((row) => row.length).reduce((a, b) => a > b ? a : b);
+    final String loaded = AppStateScope.of(context).loaded!;
 
     return SizedBox(
       width: cellWidth * cols,
@@ -250,8 +252,8 @@ class MatrixGrid extends StatelessWidget {
                             child: Center(
                               child: FittedBox(
                                 fit: BoxFit.contain,
-                                child: Image.network(
-                                  "https://777.vertizontalmedia.com/${cell['icon']}",
+                                child: AppImage(
+                                  path: cell['icon'],
                                   color: HexColor.fromHex(cell['color']),
                                 ),
                               ),

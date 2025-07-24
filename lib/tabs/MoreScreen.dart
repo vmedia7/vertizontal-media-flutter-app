@@ -10,7 +10,7 @@ import '../utils/AppState.dart';
 import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
-
+import '../utils/AppImage.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -229,8 +229,8 @@ class _MoreScreenState extends State<MoreScreen> {
               _handleLinkClicked(section?['link'], section?['android'], section?['ios'], context);
             },
             child: ListTile(
-              leading: Image.asset(
-                "assets${section?['icon']}",
+              leading: AppImage(
+                path: section['icon']!,
                 width: 24,
                 height: 24,
                 color: HexColor.fromHex(section['color']!)

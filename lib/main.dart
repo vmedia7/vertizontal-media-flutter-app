@@ -12,6 +12,7 @@ import 'utils/AppState.dart';
 import 'utils/WebView.dart';
 import 'utils/AppLayoutCache.dart';
 import 'utils/Color.dart';
+import 'utils/AppImage.dart';
 import 'utils/NotificationService.dart';
 
 import 'tabs/HomeScreen.dart';
@@ -45,21 +46,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  Future<Map<String, dynamic>> loadAppLayoutFromLocal() async {
-    // Read first rrom Cache and then Assets
-    try {
-      print('Loading layout from cache');
-      Map<String, dynamic> appLayout = (
-        await AppLayoutCache().readJsonFromCache()
-      );
+  Future<Map<String, dynamic>> loadAppLayoutFromCache() async {
+    print('Loading layout from cache');
+    Map<String, dynamic> appLayout = (
+      await AppLayoutCache().readJsonFromCache()
+    );
+    return appLayout;
+  }
 
-      return appLayout;
-
-    } catch (e) {
-      print('Loading from cache failed, now loading layout from assets');
-      String jsonString = await rootBundle.loadString('assets/appLayout.json');
-      return jsonDecode(jsonString);
-    }
+  Future<Map<String, dynamic>> loadAppLayoutFromAssets() async {
+    print('Loading layout from assets');
+    String jsonString = await rootBundle.loadString('assets/appLayout.json');
+    return jsonDecode(jsonString);
   }
 
   Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
@@ -80,8 +78,18 @@ class _MyAppState extends State<MyApp> {
 
   
   Future<void> _initAsync() async {
-    final localLayout = await loadAppLayoutFromLocal();
-    AppStateWidget.of(context).setAppState(localLayout, "local");
+    Map<String, dynamic> localLayout;
+    String loaded;
+
+    try {
+      localLayout = await loadAppLayoutFromCache();
+      loaded = "cache";
+    } catch (e) {
+      localLayout = await loadAppLayoutFromAssets();
+      loaded = "assets";
+    }
+
+    AppStateWidget.of(context).setAppState(localLayout, loaded);
     FlutterNativeSplash.remove();
     
     // Do background network work, update afterwards
@@ -143,6 +151,7 @@ class _AppNavigationState extends State<AppNavigation> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
+    final String loaded = AppStateScope.of(context).loaded!;
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -164,13 +173,13 @@ class _AppNavigationState extends State<AppNavigation> {
         destinations: <Widget>[
           for (var tab in appLayout?['tabs'])
             NavigationDestination(
-              selectedIcon: Image.asset(
-                "assets${tab?['icon']}",
+              selectedIcon: AppImage(
+                path: tab['icon']!,
                 width: 24,
                 height: 24,
               ),
-              icon: Image.asset(
-                "assets${tab?['icon']}",
+              icon: AppImage(
+                path: tab['icon']!,
                 width: 24,
                 height: 24,
               ),
