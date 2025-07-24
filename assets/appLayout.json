@@ -243,12 +243,6 @@
                   "ios": "https://apps.apple.com/us/app/rapture-ready/id6467305314"
               },
               {
-                  "icon": "/images/format_paint.png",
-                  "text": "Themes",
-                  "color": "#0066ff",
-                  "link": "ACTION_THEME"
-              },
-              {
                   "icon": "/images/info.png",
                   "text": "About",
                   "color": "#0066ff",
