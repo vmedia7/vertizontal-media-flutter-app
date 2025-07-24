@@ -18,17 +18,30 @@ class NotificationService {
   bool _isFlutterLocalNotificationsInitialized = false;
 
   Future<void> initialize() async {
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    try {
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    } catch (e) {
+      print('Warning: Failed to set background message handler: $e');
+    }
 
-    // Request permission
-    await _requestPermission();
+    try {
+      await _requestPermission();
+    } catch (e) {
+      print('Warning: Failed to request permission: $e');
+    }
 
-    // Setup message handlers
-    await _setupMessageHandlers();
+    try {
+      await _setupMessageHandlers();
+    } catch (e) {
+      print('Warning: Failed to setup message handlers: $e');
+    }
 
-    // Get FCM token
-    final token = await _messaging.getToken();
-    print('FCM Token: $token');
+    try {
+      final token = await _messaging.getToken();
+      print('FCM Token: $token');
+    } catch (e) {
+      print('Warning: Failed to get FCM token: $e');
+    }
   }
 
   Future<void> _requestPermission() async {
