@@ -41,16 +41,30 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
+
+   var homeTab;
+
+    for (var tab in appLayout['tabs']!) {
+      if (tab['text']!.toLowerCase() == "home") {
+        homeTab = tab;
+      }
+    }
+    if (homeTab == null) {
+      return Center(
+        child: Text("No 'Home' Tab was found on tabs")
+      );
+    }
+
     if (_url == null) {
       final List<List<List<Map<String, dynamic>>>> matrixList = [
-        for (var section in appLayout['tabs'][0]['sections']!)
+        for (var section in homeTab['sections']!)
           flatToMatrix((section['buttons']! as List)
             .cast<Map<String, dynamic>>()
           )
       ];
 
       final List<Map<String, dynamic>> headers = [
-        for (var section in appLayout['tabs'][0]['sections']!)
+        for (var section in homeTab['sections']!)
         {
           'title': section['title']!,
           'underlineColor': section['underlineColor']!,
