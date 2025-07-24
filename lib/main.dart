@@ -15,6 +15,7 @@ import 'utils/Color.dart';
 import 'utils/AppImage.dart';
 import 'utils/NotificationService.dart';
 import 'utils/Constants.dart';
+import 'utils/LayoutLoaders.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';
@@ -47,35 +48,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  Future<Map<String, dynamic>> loadAppLayoutFromCache() async {
-    print('Loading layout from cache');
-    Map<String, dynamic> appLayout = (
-      await AppLayoutCache().readJsonFromCache()
-    );
-    return appLayout;
-  }
-
-  Future<Map<String, dynamic>> loadAppLayoutFromAssets() async {
-    print('Loading layout from assets');
-    String jsonString = await rootBundle.loadString('assets/appLayout.json');
-    return jsonDecode(jsonString);
-  }
-
-  Future<Map<String, dynamic>> loadAppLayoutFromNetwork() async {
-    final response = await http.get(Uri.parse('${BACKEND_URL}/data'));
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load Network Request');
-    }
-  }
-
-  
   Future<void> _initAsync() async {
     Map<String, dynamic> localLayout;
     String loaded;
