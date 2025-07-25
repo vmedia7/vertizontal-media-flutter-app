@@ -141,7 +141,7 @@ class _WebViewState extends State<WebView> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    "Looks Like there's a problem loading the corresponding Webview.",
+                    "Looks Like there's a problem loading the corresponding page.",
                     textAlign: TextAlign.left,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
