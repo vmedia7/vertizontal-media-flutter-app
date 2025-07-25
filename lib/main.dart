@@ -8,7 +8,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
+import 'package:in_app_review/in_app_review.dart';
+import 'dart:io';
 
 // Local Libraries
 import 'utils/AppState.dart';
@@ -159,12 +160,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('Error clearing cache folder: $e');
     }
   }
+
+  Future<void> _showAppReview() async {
+    final directory = await getApplicationDocumentsDirectory();
+    File file = File('${directory.path}/appReviewTimestamp.txt');
+
+    final currentDate = DateTime.now();
+    if (! (await file.exists()) ) {
+      print('appReviewTimeStamp does not exist creating it...');
+      await file.writeAsString(currentDate.toString());
+      return;
+    }
+
+    final oldDate = DateTime.parse(await file.readAsString());
+    if (currentDate.difference(oldDate).inDays < 3) {
+      print('Do not show inAppReview because difference is less than 3 days');
+      return;
+    }
+
+    await file.writeAsString(currentDate.toString());
+    print('Initializing inAppReview');
+    final InAppReview inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+        inAppReview.requestReview();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppState appState = AppStateScope.of(context);
     if (appState.loaded == null) {
       return Center(child: CircularProgressIndicator());
     }
+    _showAppReview();
     print(appState.loaded);
 
     return MaterialApp(
