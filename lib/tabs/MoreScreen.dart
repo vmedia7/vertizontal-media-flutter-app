@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 
 // Local Libraries
 import '../utils/AppState.dart';
@@ -11,6 +12,16 @@ import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
+
+import 'package:flutter_background_service/flutter_background_service.dart';
+
+
+Future<void> _runBackgroundService() async {
+  final service = FlutterBackgroundService();
+  if (! (await service.isRunning())) {
+    service.startService();
+  }
+}
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -63,12 +74,14 @@ class _MoreScreenState extends State<MoreScreen> {
     }
 
     if (linkUrl == "ACTION_ABOUT") {
+
       await showAboutDialog(context);
       return;
     }
 
     if (linkUrl == "ACTION_EXIT") {
-      SystemNavigator.pop();
+      await _runBackgroundService();
+      FlutterExitApp.exitApp();
       return;
     }
 
