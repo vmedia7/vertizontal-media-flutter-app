@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
+import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:io';
 
 // Local Libraries
@@ -27,6 +28,32 @@ import 'tabs/MoreScreen.dart';
 
 import 'firebase_options.dart';
 
+Future<void> _stopBackgroundService() async {
+  final service = FlutterBackgroundService();
+  if (await service.isRunning()) {
+    service.invoke("stopService");
+  }
+}
+
+Future<void> _runBackgroundService() async {
+  final service = FlutterBackgroundService();
+  if (! (await service.isRunning())) {
+    service.startService();
+  }
+}
+
+Future<void> _clearAllCache() async {
+  try {
+    print('Trying to clear cache folder.');
+    final tempDir = await getTemporaryDirectory();
+    if (tempDir.existsSync()) {
+      await tempDir.delete(recursive: true);
+    }
+  } catch (e) {
+    print('Error clearing cache folder: $e');
+  }
+}
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -37,12 +64,50 @@ void main() async {
   );
 
   await NotificationService.instance.initialize();
+  await initializeCacheClearService();
 
   runApp(AppStateWidget(
     appLayout: {},
     loaded: null,
     child: const MyApp(),
   ));
+}
+
+Future<void> initializeCacheClearService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    iosConfiguration: IosConfiguration(
+      /*
+      autoStart: false,
+      onForeground: onStart,
+      onBackground: onIosBackground,
+      */
+    ),
+    androidConfiguration: AndroidConfiguration(
+      autoStart: false,
+      onStart: onStart,
+      isForegroundMode: false,
+      autoStartOnBoot: false,
+    ),
+  );
+}
+
+@pragma('vm:entry-point')
+Future<void> onStart(ServiceInstance service) async {
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
+
+  Timer periodicTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+    _clearAllCache();
+  });
+
+  Timer(Duration(seconds: 60 * 5), () {
+    periodicTimer.cancel();
+    service.stopSelf();
+    print("ClearCache Service stopped after 300 seconds");
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -54,6 +119,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> _initAsync() async {
+    
     Map<String, dynamic> localLayout;
     String loaded;
 
@@ -113,7 +179,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _clearTemporaryCache();
+    _clearAllCache();
+    _stopBackgroundService();
     _initAsync();
   }
 
@@ -124,40 +191,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
+    if (state == AppLifecycleState.resumed) {
+      _stopBackgroundService();
+    }
+
+    else if (state == AppLifecycleState.paused ||
       state == AppLifecycleState.detached) {
-      _clearTemporaryCache();
-    }
-  }
-
-  Future<void> _clearTemporaryCache() async {
-    print('Clearing cache');
-
-    // Clear WebView cache on all controllers
-    for (var controller in webViewControllers) {
-      try {
-        await controller.clearCache();
-      } catch (e) {
-        print('Error clearing WebView controller cache: $e');
-      }
-    }
-
-    // Clear cookies globally
-    try {
-      await WebViewCookieManager().clearCookies();
-    } catch (e) {
-      print('Error clearing WebView cookies: $e');
-    }
-
-    // Clear the temp directory as before
-    try {
-      final tempDir = await getTemporaryDirectory();
-      if (tempDir.existsSync()) {
-        await tempDir.delete(recursive: true);
-        print('Temporary cache folder cleared.');
-      }
-    } catch (e) {
-      print('Error clearing cache folder: $e');
+      _runBackgroundService();
     }
   }
 
@@ -224,7 +264,39 @@ class _AppNavigationState extends State<AppNavigation> {
     final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
     final String loaded = AppStateScope.of(context).loaded!;
     final ThemeData theme = Theme.of(context);
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) {
+
+          return;
+        }
+
+        if (webViewControllers.isNotEmpty) {
+          List<dynamic> list = webViewControllers.last;
+          dynamic controller = list[0];
+          dynamic customLastGoBack = list[1];
+
+          if (controller != null) {
+            final shouldPop = await controller.canGoBack();
+            if (shouldPop) {
+              await controller.goBack();
+              return;
+            }
+
+            if (customLastGoBack != null)
+            {
+              customLastGoBack.call();
+              webViewControllers.removeLast();
+              return;
+            }
+          }
+        }
+
+        await _runBackgroundService();
+        await SystemNavigator.pop();
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(appLayout['tabs'][currentPageIndex]['text']! as String),
         backgroundColor: theme.colorScheme.primary,
@@ -272,6 +344,7 @@ class _AppNavigationState extends State<AppNavigation> {
               return MoreScreen();
             }
           })()
+        )
     );
   }
 }
