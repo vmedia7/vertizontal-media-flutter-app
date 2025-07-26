@@ -64,6 +64,7 @@ void main() async {
   );
 
   await NotificationService.instance.initialize();
+
   await initializeCacheClearService();
 
   runApp(AppStateWidget(

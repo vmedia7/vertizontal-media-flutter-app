@@ -2,6 +2,14 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Permission status simplified for the app's use.
+enum NotificationPermissionStatus {
+  granted,
+  denied,
+  notDetermined,
+}
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -13,21 +21,60 @@ class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
 
-  final _messaging = FirebaseMessaging.instance;
-  final _localNotifications = FlutterLocalNotificationsPlugin();
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   bool _isFlutterLocalNotificationsInitialized = false;
 
+  static const String _permissionStatusKey = 'notification_permission_status';
+
+  /// Convert Firebase AuthorizationStatus into app-specific NotificationPermissionStatus.
+  NotificationPermissionStatus _mapAuthStatusToPermission(AuthorizationStatus status) {
+    switch (status) {
+      case AuthorizationStatus.authorized:
+      case AuthorizationStatus.provisional:
+        return NotificationPermissionStatus.granted;
+      case AuthorizationStatus.denied:
+        return NotificationPermissionStatus.denied;
+      case AuthorizationStatus.notDetermined:
+      default:
+        return NotificationPermissionStatus.notDetermined;
+    }
+  }
+
+  /// Initialize notification permissions and services respecting saved permission.
   Future<void> initialize() async {
+    final savedStatus = await _getSavedPermissionStatus();
+
+    print('Saved notification permission status: $savedStatus');
+
+    if (savedStatus == NotificationPermissionStatus.granted) {
+      print('Notification permission previously granted. Setting up service...');
+      await _setupFullNotificationService();
+    } else if (savedStatus == NotificationPermissionStatus.notDetermined) {
+      print('Notification permission not determined. Requesting permission...');
+      try {
+        final settings = await _requestPermission();
+        final mappedStatus = _mapAuthStatusToPermission(settings.authorizationStatus);
+        await _savePermissionStatus(mappedStatus);
+
+        if (mappedStatus == NotificationPermissionStatus.granted) {
+          print('Notification permission granted by user.');
+          await _setupFullNotificationService();
+        } else {
+          print('Notification permission denied or provisional by user.');
+        }
+      } catch (e) {
+        print('Warning: Failed to request permission: $e');
+      }
+    } else {
+      print('Notification permission previously denied. Service not started.');
+    }
+  }
+  Future<void> _setupFullNotificationService() async {
     try {
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     } catch (e) {
       print('Warning: Failed to set background message handler: $e');
-    }
-
-    try {
-      await _requestPermission();
-    } catch (e) {
-      print('Warning: Failed to request permission: $e');
     }
 
     try {
@@ -44,7 +91,24 @@ class NotificationService {
     }
   }
 
-  Future<void> _requestPermission() async {
+  Future<NotificationPermissionStatus> _getSavedPermissionStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final statusString = prefs.getString(_permissionStatusKey);
+    if (statusString == null) {
+      return NotificationPermissionStatus.notDetermined;
+    }
+    return NotificationPermissionStatus.values.firstWhere(
+      (e) => e.toString() == statusString,
+      orElse: () => NotificationPermissionStatus.notDetermined,
+    );
+  }
+
+  Future<void> _savePermissionStatus(NotificationPermissionStatus status) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_permissionStatusKey, status.toString());
+  }
+
+  Future<NotificationSettings> _requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -56,14 +120,12 @@ class NotificationService {
     );
 
     print('Permission status: ${settings.authorizationStatus}');
+    return settings;
   }
 
   Future<void> setupFlutterNotifications() async {
-    if (_isFlutterLocalNotificationsInitialized) {
-      return;
-    }
+    if (_isFlutterLocalNotificationsInitialized) return;
 
-    // android setup
     const channel = AndroidNotificationChannel(
       'high_importance_channel',
       'High Importance Notifications',
@@ -72,33 +134,31 @@ class NotificationService {
     );
 
     await _localNotifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/launcher_icon');
-
-    // ios setup
-    final initializationSettingsDarwin = DarwinInitializationSettings();
+    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
+    final iosSettings = DarwinInitializationSettings();
 
     final initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
+      android: androidSettings,
+      iOS: iosSettings,
     );
 
-    // flutter notification setup
     await _localNotifications.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (details) {},
+      onDidReceiveNotificationResponse: (details) {
+        // Handle notification tapped logic, if needed
+      },
     );
 
     _isFlutterLocalNotificationsInitialized = true;
   }
 
   Future<void> showNotification(RemoteMessage message) async {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
+    final notification = message.notification;
+    final android = message.notification?.android;
+
     if (notification != null && android != null) {
       await _localNotifications.show(
         notification.hashCode,
@@ -108,8 +168,7 @@ class NotificationService {
           android: AndroidNotificationDetails(
             'high_importance_channel',
             'High Importance Notifications',
-            channelDescription:
-                'This channel is used for important notifications.',
+            channelDescription: 'This channel is used for important notifications.',
             importance: Importance.high,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -126,15 +185,13 @@ class NotificationService {
   }
 
   Future<void> _setupMessageHandlers() async {
-    // Foreground message
-    FirebaseMessaging.onMessage.listen((message) {
-      showNotification(message);
+    FirebaseMessaging.onMessage.listen((message) async {
+      await setupFlutterNotifications();
+      await showNotification(message);
     });
 
-    // Background message
     FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
 
-    // Opened app
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       _handleBackgroundMessage(initialMessage);
@@ -142,6 +199,8 @@ class NotificationService {
   }
 
   void _handleBackgroundMessage(RemoteMessage message) {
-    print(message);
+    print('Notification opened: $message');
+    // Add further navigation or processing here if necessary
   }
 }
+
