@@ -279,17 +279,21 @@ class _AppNavigationState extends State<AppNavigation> {
           dynamic customLastGoBack = list[1];
 
           if (controller != null) {
-            final shouldPop = await controller.canGoBack();
-            if (shouldPop) {
-              await controller.goBack();
-              return;
-            }
+            try {
+              final shouldPop = await controller.canGoBack();
+              if (shouldPop) {
+                await controller.goBack();
+                return;
+              }
 
-            if (customLastGoBack != null)
-            {
-              customLastGoBack.call();
-              webViewControllers.removeLast();
-              return;
+              if (customLastGoBack != null)
+              {
+                customLastGoBack.call();
+                webViewControllers.removeLast();
+                return;
+              }
+            } catch (e) {
+              print(e);
             }
           }
         }
