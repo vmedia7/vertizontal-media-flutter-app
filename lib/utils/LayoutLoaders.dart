@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 
 import './AppLayoutCache.dart';
-import './Constants.dart';
+import '../global/Constants.dart';
 
 Future<Map<String, dynamic>> loadAppLayoutFromCache() async {
   print('Loading layout from cache');

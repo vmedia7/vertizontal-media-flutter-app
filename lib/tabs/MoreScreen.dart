@@ -7,7 +7,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 
 // Local Libraries
-import '../utils/AppState.dart';
 import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
@@ -15,6 +14,8 @@ import '../utils/AppImage.dart';
 
 // Services
 import '../services/CacheService.dart';
+
+import '../global/AppState.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});

@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/WebView.dart';
-import '../utils/AppState.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
+
+import '../global/AppState.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

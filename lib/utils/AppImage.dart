@@ -8,8 +8,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
-import './AppState.dart';
-import './Constants.dart';
+import '../global/AppState.dart';
+import '../global/Constants.dart';
 
 
 class AppImage extends StatefulWidget {

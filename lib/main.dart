@@ -12,18 +12,20 @@ import 'package:in_app_review/in_app_review.dart';
 import 'dart:io';
 
 // Local Libraries
-import 'utils/AppState.dart';
 import 'utils/WebView.dart';
 import 'utils/AppLayoutCache.dart';
 import 'utils/Color.dart';
 import 'utils/AppImage.dart';
-import 'utils/Constants.dart';
 import 'utils/LayoutLoaders.dart';
-import 'utils/GlobalControllers.dart';
 
 // Services
 import 'services/NotificationService.dart';
 import 'services/CacheService.dart';
+
+// Global
+import 'global/Constants.dart';
+import 'global/GlobalControllers.dart';
+import 'global/AppState.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';

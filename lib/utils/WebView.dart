@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-import './GlobalControllers.dart';
-import './AppState.dart';
+import '../global/GlobalControllers.dart';
+import '../global/AppState.dart';
 import './Color.dart';
 
 class WebView extends StatefulWidget {
