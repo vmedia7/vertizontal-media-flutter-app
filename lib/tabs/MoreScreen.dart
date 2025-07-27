@@ -12,16 +12,7 @@ import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
-
-import 'package:flutter_background_service/flutter_background_service.dart';
-
-
-Future<void> _runBackgroundService() async {
-  final service = FlutterBackgroundService();
-  if (! (await service.isRunning())) {
-    service.startService();
-  }
-}
+import '../utils/CacheService.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -80,7 +71,7 @@ class _MoreScreenState extends State<MoreScreen> {
     }
 
     if (linkUrl == "ACTION_EXIT") {
-      await _runBackgroundService();
+      await runBackgroundService();
       FlutterExitApp.exitApp();
       return;
     }

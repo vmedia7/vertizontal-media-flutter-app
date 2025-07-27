@@ -9,7 +9,6 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:io';
 
 // Local Libraries
@@ -22,42 +21,16 @@ import 'utils/NotificationService.dart';
 import 'utils/Constants.dart';
 import 'utils/LayoutLoaders.dart';
 import 'utils/GlobalControllers.dart';
+import 'utils/CacheService.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';
 
 import 'firebase_options.dart';
 
-Future<void> _stopBackgroundService() async {
-  final service = FlutterBackgroundService();
-  if (await service.isRunning()) {
-    service.invoke("stopService");
-  }
-}
-
-Future<void> _runBackgroundService() async {
-  final service = FlutterBackgroundService();
-  if (! (await service.isRunning())) {
-    service.startService();
-  }
-}
-
-Future<void> _clearAllCache() async {
-  try {
-    print('Trying to clear cache folder.');
-    final tempDir = await getTemporaryDirectory();
-    if (tempDir.existsSync()) {
-      await tempDir.delete(recursive: true);
-    }
-  } catch (e) {
-    print('Error clearing cache folder: $e');
-  }
-}
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -72,43 +45,6 @@ void main() async {
     loaded: null,
     child: const MyApp(),
   ));
-}
-
-Future<void> initializeCacheClearService() async {
-  final service = FlutterBackgroundService();
-
-  await service.configure(
-    iosConfiguration: IosConfiguration(
-      /*
-      autoStart: false,
-      onForeground: onStart,
-      onBackground: onIosBackground,
-      */
-    ),
-    androidConfiguration: AndroidConfiguration(
-      autoStart: false,
-      onStart: onStart,
-      isForegroundMode: false,
-      autoStartOnBoot: false,
-    ),
-  );
-}
-
-@pragma('vm:entry-point')
-Future<void> onStart(ServiceInstance service) async {
-  service.on('stopService').listen((event) {
-    service.stopSelf();
-  });
-
-  Timer periodicTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-    _clearAllCache();
-  });
-
-  Timer(Duration(seconds: 60 * 5), () {
-    periodicTimer.cancel();
-    service.stopSelf();
-    print("ClearCache Service stopped after 300 seconds");
-  });
 }
 
 class MyApp extends StatefulWidget {
@@ -180,8 +116,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _clearAllCache();
-    _stopBackgroundService();
+    clearAllCache();
+    stopBackgroundService();
     _initAsync();
   }
 
@@ -193,12 +129,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _stopBackgroundService();
+      stopBackgroundService();
     }
 
     else if (state == AppLifecycleState.paused ||
       state == AppLifecycleState.detached) {
-      _runBackgroundService();
+      runBackgroundService();
     }
   }
 
@@ -298,7 +234,7 @@ class _AppNavigationState extends State<AppNavigation> {
           }
         }
 
-        await _runBackgroundService();
+        await runBackgroundService();
         await SystemNavigator.pop();
       },
       child: Scaffold(
