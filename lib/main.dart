@@ -17,11 +17,13 @@ import 'utils/WebView.dart';
 import 'utils/AppLayoutCache.dart';
 import 'utils/Color.dart';
 import 'utils/AppImage.dart';
-import 'utils/NotificationService.dart';
 import 'utils/Constants.dart';
 import 'utils/LayoutLoaders.dart';
 import 'utils/GlobalControllers.dart';
-import 'utils/CacheService.dart';
+
+// Services
+import 'services/NotificationService.dart';
+import 'services/CacheService.dart';
 
 import 'tabs/HomeScreen.dart';
 import 'tabs/MoreScreen.dart';

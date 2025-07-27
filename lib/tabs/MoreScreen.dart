@@ -12,7 +12,9 @@ import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
-import '../utils/CacheService.dart';
+
+// Services
+import '../services/CacheService.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
