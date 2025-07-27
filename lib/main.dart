@@ -38,7 +38,7 @@ void main() async {
 
   await NotificationService.instance.initialize();
 
-  await initializeCacheClearService();
+  await CacheService.initialize();
 
   runApp(AppStateWidget(
     appLayout: {},
@@ -116,8 +116,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    clearAllCache();
-    stopBackgroundService();
+    CacheService.clearAllCache();
+    CacheService.stopBackgroundService();
     _initAsync();
   }
 
@@ -129,12 +129,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      stopBackgroundService();
+      CacheService.stopBackgroundService();
     }
 
     else if (state == AppLifecycleState.paused ||
       state == AppLifecycleState.detached) {
-      runBackgroundService();
+      CacheService.runBackgroundService();
     }
   }
 
@@ -234,7 +234,7 @@ class _AppNavigationState extends State<AppNavigation> {
           }
         }
 
-        await runBackgroundService();
+        await CacheService.runBackgroundService();
         await SystemNavigator.pop();
       },
       child: Scaffold(

@@ -71,7 +71,7 @@ class _MoreScreenState extends State<MoreScreen> {
     }
 
     if (linkUrl == "ACTION_EXIT") {
-      await runBackgroundService();
+      await CacheService.runBackgroundService();
       FlutterExitApp.exitApp();
       return;
     }
