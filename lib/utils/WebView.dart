@@ -1,3 +1,5 @@
+/// Widget to view pages
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +10,13 @@ import '../global/AppState.dart';
 import './Color.dart';
 
 class WebView extends StatefulWidget {
+  /// THe url to load from network.
   final String url;
+
+  /// Custom function to execute in the last go back instead of
+  /// SystemNavigator.pop().
   final void Function()? customLastGoBack;
+
   const WebView({super.key, required this.url, this.customLastGoBack});
 
   @override
@@ -17,10 +24,14 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> with WidgetsBindingObserver {
+  /// WebView page load percentage.
   int loadingPercentage = 0;
-  Object? errorLoadingPage;
+
+  /// Error message in case the main frame fails to load.
+  String? errorLoadingPage;
+  
+  /// WebView controller for stuffs like goBack.
   late InAppWebViewController controller;
-  bool showErrorPage = false;
 
   @override
   void initState() {
@@ -34,6 +45,7 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Pauses or Resumes Webviews depending of the App Life Cycle
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('state = $state');
@@ -54,7 +66,16 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
     }
   }
 
-  
+  /// Renders WebView or Custom error page
+  ///
+  /// Paramters
+  /// ---------
+  /// [context] : [BuildContext]
+  ///
+  /// Returns
+  /// -------
+  /// widget : [Widget]
+
   @override
   Widget build(BuildContext context) {
     return errorLoadingPage == null
@@ -113,6 +134,18 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
         )
       : _webviewErrorWidget(context);
   }
+
+  /// Renders error widget in case the page fails to load
+  ///
+  ///
+  /// Paramters
+  /// ---------
+  /// [context] : [BuildContext]
+  ///             To get the Theme of the App
+  ///
+  /// Returns
+  /// -------
+  /// widget : [Widget]
 
   Widget _webviewErrorWidget(BuildContext context) {
     final theme = Theme.of(context);
@@ -190,5 +223,3 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
     );
   }
 }
-
-

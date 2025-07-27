@@ -38,6 +38,7 @@ extension HexColor on Color {
     }
 
     return Color(int.parse(buffer.toString(), radix: 16));
+  }
 
   /// Prefixes a hash sign if [leadingHashSign] is set to `true`
   /// (default is `false`)
