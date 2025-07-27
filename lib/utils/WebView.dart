@@ -79,60 +79,75 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return errorLoadingPage == null
-      ? Stack(
-          children: [
-            InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri(this.widget.url)),
-              initialSettings: InAppWebViewSettings(
-                javaScriptEnabled: true,
-                cacheEnabled: true,
-                supportZoom: true,
-                useWideViewPort: false,
-              ),
-              onReceivedError: (controller, request, error) {
-                if (request.isForMainFrame ?? false) {
-                  setState(() {
-                    errorLoadingPage = error.description;
-                  });
-                }
-              },
-              onReceivedHttpError: (controller, request, response) {
-                if (request.isForMainFrame ?? false) {
-                  setState(() {
-                    errorLoadingPage = 'HTTP error: ${response.statusCode}';
-                  });
-                }
-              },
+        ? _webViewSuccessWidget(context)
+        : _webviewErrorWidget(context);
+  }
 
-              onWebViewCreated: (ctrl) {
-                controller = ctrl;
-                webViewControllers.add([
-                  controller,
-                  this.widget.customLastGoBack,
-                ]);
-              },
-              onLoadStart: (ctrl, url) {
-                setState(() {
-                  loadingPercentage = 0;
-                  errorLoadingPage = null;
-                });
-              },
-              onProgressChanged: (ctrl, progress) {
-                setState(() {
-                  loadingPercentage = progress;
-                });
-              },
-              onLoadStop: (ctrl, url) {
-                setState(() {
-                  loadingPercentage = 100;
-                });
-              },
-            ),
-            if (loadingPercentage < 100)
-              const Center(child: CircularProgressIndicator()),
-          ],
-        )
-      : _webviewErrorWidget(context);
+  /// Renders success widget in case the page loads or is waiting to load
+  ///
+  ///
+  /// Paramters
+  /// ---------
+  /// [context] : [BuildContext]
+  ///
+  /// Returns
+  /// -------
+  /// widget : [Widget]
+
+  Widget _webViewSuccessWidget(BuildContext context) {
+    return Stack(
+      children: [
+        InAppWebView(
+          initialUrlRequest: URLRequest(url: WebUri(this.widget.url)),
+          initialSettings: InAppWebViewSettings(
+            javaScriptEnabled: true,
+            cacheEnabled: true,
+            supportZoom: true,
+            useWideViewPort: false,
+          ),
+          onReceivedError: (controller, request, error) {
+            if (request.isForMainFrame ?? false) {
+              setState(() {
+                errorLoadingPage = error.description;
+              });
+            }
+          },
+          onReceivedHttpError: (controller, request, response) {
+            if (request.isForMainFrame ?? false) {
+              setState(() {
+                errorLoadingPage = 'HTTP error: ${response.statusCode}';
+              });
+            }
+          },
+
+          onWebViewCreated: (ctrl) {
+            controller = ctrl;
+            webViewControllers.add([
+              controller,
+              this.widget.customLastGoBack,
+            ]);
+          },
+          onLoadStart: (ctrl, url) {
+            setState(() {
+              loadingPercentage = 0;
+              errorLoadingPage = null;
+            });
+          },
+          onProgressChanged: (ctrl, progress) {
+            setState(() {
+              loadingPercentage = progress;
+            });
+          },
+          onLoadStop: (ctrl, url) {
+            setState(() {
+              loadingPercentage = 100;
+            });
+          },
+        ),
+        if (loadingPercentage < 100)
+          const Center(child: CircularProgressIndicator()),
+      ],
+    );
   }
 
   /// Renders error widget in case the page fails to load
