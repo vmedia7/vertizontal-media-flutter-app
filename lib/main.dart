@@ -9,6 +9,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'dart:io';
 
 // Local Libraries
@@ -214,9 +215,12 @@ class _AppNavigationState extends State<AppNavigation> {
         }
 
         if (webViewControllers.isNotEmpty) {
-          List<dynamic> list = webViewControllers.last;
-          dynamic controller = list[0];
-          dynamic customLastGoBack = list[1];
+          GlobalWebViewController globalWebViewController =
+              webViewControllers.last;
+          InAppWebViewController? controller =
+              globalWebViewController.controller;
+          void Function()? customLastGoBack =
+              globalWebViewController.customLastGoBack;
 
           if (controller != null) {
             try {

@@ -122,10 +122,10 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
 
           onWebViewCreated: (ctrl) {
             controller = ctrl;
-            webViewControllers.add([
-              controller,
-              this.widget.customLastGoBack,
-            ]);
+            webViewControllers.add(GlobalWebViewController(
+              controller: controller,
+              customLastGoBack: this.widget.customLastGoBack,
+            ));
           },
           onLoadStart: (ctrl, url) {
             setState(() {
