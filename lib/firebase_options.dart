@@ -78,12 +78,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyAppTTVqh6DBBYcUaivq4o8dwZ7E0IsRWQ',
-    appId: '1:195650355363:web:1f46368469f27ff8b83f16',
+    appId: '1:195650355363:web:4761ba49d9133a9bb83f16',
     messagingSenderId: '195650355363',
     projectId: 'vertizontal-media',
     authDomain: 'vertizontal-media.firebaseapp.com',
     storageBucket: 'vertizontal-media.firebasestorage.app',
-    measurementId: 'G-L7198TYBW3',
+    measurementId: 'G-9RVGD140SD',
   );
 
 }
