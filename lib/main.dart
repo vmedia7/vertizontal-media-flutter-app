@@ -210,6 +210,7 @@ class AppNavigation extends StatefulWidget {
 
 class _AppNavigationState extends State<AppNavigation> {
   int currentPageIndex = 0;
+  int _rebuildFlag = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -265,12 +266,17 @@ class _AppNavigationState extends State<AppNavigation> {
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
-            currentPageIndex = index;
+            if (index == currentPageIndex) {
+              _rebuildFlag++;
+            } else {
+              currentPageIndex = index;
+              _rebuildFlag = 0;
+            }
           });
-        },
+        },        
         indicatorColor: HexColor.fromHex(
-                          appLayout['tabs'][currentPageIndex]['color']
-                        ),
+          appLayout['tabs'][currentPageIndex]['color']
+        ),
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           for (var tab in appLayout?['tabs'])
@@ -289,23 +295,21 @@ class _AppNavigationState extends State<AppNavigation> {
             ),
         ],
       ),
-      body:
-          (() {
-            final String link = appLayout['tabs'][currentPageIndex]['link']!;
-            if (link.startsWith('http')) {
-                return WebView(
-                  key: ValueKey(link),
-                  url: link,
-                );
-            } else if (link == "#") {
-              return HomeScreen();
-            } else if (link == "more") {
-              return MoreScreen();
-            }
-          })()
+        body: (() {
+          final String link = appLayout['tabs'][currentPageIndex]['link']!;
+          if (link.startsWith('http')) {
+            return WebView(
+              key: ValueKey('$link-$_rebuildFlag'),
+              url: link,
+            );
+          } else if (link == "#") {
+            return HomeScreen(key: ValueKey('home-$_rebuildFlag'));
+          } else if (link == "more") {
+            return MoreScreen(key: ValueKey('more-$_rebuildFlag'));
+          }
+          return SizedBox();
+        })(),
         )
     );
   }
 }
-
-
