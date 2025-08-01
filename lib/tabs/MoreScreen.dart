@@ -253,7 +253,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 path: section['icon']!,
                 width: 24,
                 height: 24,
-                color: HexColor.fromHex(section['color']!)
+                color: HexColor.fromHex(section['color'] ?? "#0066ff")
               ),
               title: Text(section['text']!),
               trailing: Icon(Icons.chevron_right),

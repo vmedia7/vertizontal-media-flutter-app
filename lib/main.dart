@@ -112,6 +112,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       insertAt += 1;
     }
 
+    final moreSections = [
+      for (var section in localLayout['tabs'].last['sections'])
+        if (section['link'].startsWith('ACTION'))
+          section
+    ];
+
+    localLayout['tabs'].last['sections'] = [
+      ...networkLayout['data']['more'], ...moreSections
+    ];
+
     AppStateWidget.of(context).setAppState(localLayout, "network");
     await AppLayoutCache().writeJsonToCache(localLayout);
   }
