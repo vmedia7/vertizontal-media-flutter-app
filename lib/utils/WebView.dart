@@ -104,6 +104,7 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
             cacheEnabled: true,
             supportZoom: true,
             useWideViewPort: false,
+            disableDefaultErrorPage: true,
           ),
           onReceivedError: (controller, request, error) {
             if (request.isForMainFrame ?? false) {
@@ -112,6 +113,7 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
               });
             }
           },
+          /*
           onReceivedHttpError: (controller, request, response) {
             if (request.isForMainFrame ?? false) {
               setState(() {
@@ -119,7 +121,7 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
               });
             }
           },
-
+          */
           onWebViewCreated: (ctrl) {
             controller = ctrl;
             webViewControllers.add(GlobalWebViewController(
