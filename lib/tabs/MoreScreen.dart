@@ -41,7 +41,7 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (linkUrl == "ACTION_VIEW") {
       await launchUrl(
-        Uri.parse((Platform.isAndroid ? android : ios) ?? "https://eternityready.com"),
+        Uri.parse((Platform.isAndroid ? android : ios) ?? "https://vertizontalmedia.com"),
         mode: LaunchMode.externalApplication
       );
       return;
@@ -179,8 +179,8 @@ class _MoreScreenState extends State<MoreScreen> {
               onTap: () {
                 _handleLinkClicked(
                   "ACTION_VIEW",
-                  "https://eternityready.com",
-                  "https://eternityready.com",
+                  "https://vertizontalmedia.com",
+                  "https://vertizontalmedia.com",
                   context,
                 );
               },
