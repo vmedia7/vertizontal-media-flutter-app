@@ -60,11 +60,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCE69uTzU6Xm6ZnCUEUFAb5CJ9HHriou1M',
-    appId: '1:195650355363:ios:baceaf695cba1794b83f16',
+    appId: '1:195650355363:ios:4eb8ee7e3e088515b83f16',
     messagingSenderId: '195650355363',
     projectId: 'vertizontal-media',
     storageBucket: 'vertizontal-media.firebasestorage.app',
-    iosBundleId: 'com.wVertiZontalMedia',
+    iosBundleId: 'com.wVertiZontalMediaApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
