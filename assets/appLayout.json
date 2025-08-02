@@ -236,7 +236,7 @@
           "color": "#0066ff",
           "link": "ACTION_SEND",
           "android": "Download Vertizontal Media at: https://play.google.com/store/apps/details?id=com.wVertiZontalMedia",
-          "ios": "Download Vertizontal Media at: https://apps.apple.com/us/app/vertizontal-media/id1560852521"
+          "ios": "Download VertiZontal Media at: https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
         },
         {
           "icon": "/images/grade.png",
@@ -244,7 +244,7 @@
           "color": "#0066ff",
           "link": "ACTION_VIEW",
           "android": "https://play.google.com/store/apps/details?id=com.wVertiZontalMedia",
-          "ios": "https://apps.apple.com/us/app/vertizontal-media/id1560852521"
+          "ios": "https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
         },
         {
           "icon": "/images/info.png",
