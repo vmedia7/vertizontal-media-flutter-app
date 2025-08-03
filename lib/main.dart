@@ -188,6 +188,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     print(appState.loaded);
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'VertiZontal Media',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
