@@ -34,14 +34,24 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (linkUrl == "ACTION_SEND") {
       await SharePlus.instance.share(
-        ShareParams(text: Platform.isAndroid ? android : ios)
+//        ShareParams(text: Platform.isAndroid ? android : ios)
+        ShareParams(
+          text: Platform.isAndroid 
+          ? "Download Vertizontal Media at: https://play.google.com/store/apps/details?id=com.wVertiZontalMedia"
+          : "Download VertiZontal Media at: https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
+        )
       );
       return;
     }
 
     if (linkUrl == "ACTION_VIEW") {
       await launchUrl(
-        Uri.parse((Platform.isAndroid ? android : ios) ?? "https://vertizontalmedia.com"),
+        //Uri.parse((Platform.isAndroid ? android : ios) ?? "https://vertizontalmedia.com"),
+        Uri.parse((
+            Platform.isAndroid 
+            ? "https://play.google.com/store/apps/details?id=com.wVertiZontalMedia"
+            : "https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
+            ) ?? "https://vertizontalmedia.com"),
         mode: LaunchMode.externalApplication
       );
       return;
