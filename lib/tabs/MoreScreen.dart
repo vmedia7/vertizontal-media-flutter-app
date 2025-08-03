@@ -187,11 +187,9 @@ class _MoreScreenState extends State<MoreScreen> {
             const SizedBox(height: 6),
             GestureDetector(
               onTap: () {
-                _handleLinkClicked(
-                  "ACTION_VIEW",
-                  "https://vertizontalmedia.com",
-                  "https://vertizontalmedia.com",
-                  context,
+                launchUrl(
+                  Uri.parse("https://vertizontalmedia.com"),
+                  mode: LaunchMode.externalApplication
                 );
               },
               child: Text(
