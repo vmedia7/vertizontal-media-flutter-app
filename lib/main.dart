@@ -20,8 +20,9 @@ import 'utils/AppImage.dart';
 import 'utils/LayoutLoaders.dart';
 
 // Services
-import 'services/NotificationService.dart';
 import 'services/CacheService.dart';
+import 'services/FirebaseMessagingService.dart';
+import 'services/LocalNotificationsService.dart';
 
 // Global
 import 'global/Constants.dart';
@@ -41,7 +42,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await NotificationService.instance.initialize();
+  final localNotificationsService = LocalNotificationsService.instance();
+  await localNotificationsService.init();
+
+  final firebaseMessagingService = FirebaseMessagingService.instance();
+  await firebaseMessagingService.init(
+    localNotificationsService: localNotificationsService
+  );
 
   await CacheService.initialize();
 
