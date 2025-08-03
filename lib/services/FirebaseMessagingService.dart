@@ -44,6 +44,7 @@ class FirebaseMessagingService {
   /// Retrieves and manages the FCM token for push notifications
   Future<void> _handlePushNotificationsToken() async {
     // Get the FCM token for the device
+    await Future.delayed(Duration(seconds: 1));
     final token = await FirebaseMessaging.instance.getToken();
     print('Push notifications token: $token');
 
