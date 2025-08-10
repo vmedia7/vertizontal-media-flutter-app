@@ -33,9 +33,13 @@ import 'tabs/MoreScreen.dart';
 
 import 'firebase_options.dart';
 
+
 void main() async {
+
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  final DateTime splashStartTime = DateTime.now();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -48,18 +52,20 @@ void main() async {
   runApp(AppStateWidget(
     appLayout: {},
     loaded: null,
-    child: const MyApp(),
+    child: MyApp(splashStartTime: splashStartTime),
   ));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final DateTime splashStartTime;
+  const MyApp({Key? key, required this.splashStartTime}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  bool _showSecondSplashScreen = true;
   Future<void> _initAsync() async {
     
     Map<String, dynamic> localLayout;
@@ -73,11 +79,27 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       loaded = "assets";
     }
 
-    AppStateWidget.of(context).setAppState(localLayout, loaded);
-    FlutterNativeSplash.remove();
+    final DateTime splashEndTime = DateTime.now();
+    final elapsed = splashEndTime.difference(
+      this.widget.splashStartTime
+    ).inSeconds;
 
-    
-    // Do background network work, update afterwards
+    final int timeToWait = 1;
+
+    print("Loading Layout took: ${elapsed} seconds");
+    AppStateWidget.of(context).setAppState(localLayout, loaded);
+    loadNetworkAndUpdate(localLayout);
+
+    if (elapsed >= timeToWait) {
+      FlutterNativeSplash.remove();
+    } else {
+      await Future.delayed(Duration(seconds: timeToWait - elapsed), () async {
+        FlutterNativeSplash.remove();
+      });
+    }
+  }
+
+  Future<void> loadNetworkAndUpdate(Map<String, dynamic> localLayout) async {
     final networkLayout = await loadAppLayoutFromNetwork();
     final firstTab = localLayout['tabs'][0];
     for (int idx = 0; idx < networkLayout['data']['sections'].length; idx++) {
@@ -96,7 +118,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           tab['text']!.toLowerCase() == "more"
           ) tab
     ];
-    print(localLayout['tabs']);
 
     var insertAt = 0;
     for (int idx = 0; idx < networkLayout['data']['bottomNav'].length; idx++) {
@@ -125,7 +146,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     AppStateWidget.of(context).setAppState(localLayout, "network");
     await AppLayoutCache().writeJsonToCache(localLayout);
   }
-
 
   @override
   void initState() {
@@ -181,9 +201,34 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final AppState appState = AppStateScope.of(context);
+
     if (appState.loaded == null) {
-      return Center(child: CircularProgressIndicator());
+      return SecondSplashScreen();
     }
+
+    if (_showSecondSplashScreen) {
+      final DateTime splashEndTime = DateTime.now();
+
+      final elapsed = splashEndTime.difference(
+        this.widget.splashStartTime
+      ).inSeconds;
+
+      final int timeToWait = 2;
+
+      if (elapsed >= timeToWait) {
+        setState(() {
+          _showSecondSplashScreen = false;
+        });
+      } else {
+        Future.delayed(Duration(seconds: timeToWait - elapsed), () async {
+          setState(() {
+            _showSecondSplashScreen = false;
+          });
+        });
+      }
+      return SecondSplashScreen();
+    }
+
     _showAppReview();
     print(appState.loaded);
 
@@ -314,3 +359,31 @@ class _AppNavigationState extends State<AppNavigation> {
     );
   }
 }
+
+class SecondSplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: HexColor.fromHex('#ce0c55'),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double size = constraints.maxWidth < constraints.maxHeight
+              ? constraints.maxWidth
+              : constraints.maxHeight;
+
+          double imageSize = size * 0.5;
+
+          return Center(
+            child: Image.asset(
+              'assets/icon/splash2.png',
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.contain,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
