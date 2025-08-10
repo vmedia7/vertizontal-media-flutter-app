@@ -246,11 +246,9 @@ class MatrixGrid extends StatelessWidget {
 
                   width: cellWidth,
                   height: cellHeight,
-                  /*
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 1),
+                    border: Border.all(color: Colors.white.withOpacity(0.0), width: 1),
                   ),
-                  */
                   padding: const EdgeInsets.symmetric(
                     horizontal: 4,
                     vertical: 2
