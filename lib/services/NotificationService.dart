@@ -137,7 +137,7 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
+    const androidSettings = AndroidInitializationSettings('launcher_notification');
     final iosSettings = DarwinInitializationSettings();
 
     final initializationSettings = InitializationSettings(
@@ -171,7 +171,7 @@ class NotificationService {
             channelDescription: 'This channel is used for important notifications.',
             importance: Importance.high,
             priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
+            icon: 'launcher_notification',
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
