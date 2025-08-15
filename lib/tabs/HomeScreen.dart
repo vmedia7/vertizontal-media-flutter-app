@@ -9,11 +9,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/WebView.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
+import '../utils/Donation.dart';
 
 import '../global/AppState.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(dynamic)? onWebViewCreated;
+  const HomeScreen({super.key, this.onWebViewCreated});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,7 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? _url;
 
-  void _handleLinkClicked(String linkUrl) {
+  void _handleLinkClicked(String linkUrl) async {
+    if (await openDonation(linkUrl)) {
+      return;
+    }
+
     setState(() {
       _url = linkUrl;
     });
@@ -87,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     else {
-      return WebView(url: _url!, customLastGoBack: customLastGoBack);
+      return WebView(url: _url!, customLastGoBack: customLastGoBack, onWebViewCreated: this.widget.onWebViewCreated);
     }
   }
 
@@ -304,4 +310,3 @@ class MatrixGrid extends StatelessWidget {
     );
   }
 }
-

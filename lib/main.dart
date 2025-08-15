@@ -12,6 +12,11 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+
+import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
+
 // Local Libraries
 import 'utils/WebView.dart';
 import 'utils/AppLayoutCache.dart';
@@ -41,6 +46,7 @@ void main() async {
 
   final DateTime splashStartTime = DateTime.now();
 
+  await initGoogleCast();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -154,6 +160,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     CacheService.clearAllCache();
     CacheService.stopBackgroundService();
     _initAsync();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        _hideSplashAndShowReview();
+      }
+    });
   }
 
   @override
@@ -198,6 +209,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
+  void _hideSplashAndShowReview() {
+    setState(() => _showSecondSplashScreen = false);
+
+    _showAppReview();
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     final AppState appState = AppStateScope.of(context);
@@ -206,32 +224,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return SecondSplashScreen();
     }
 
-    if (_showSecondSplashScreen) {
-      final DateTime splashEndTime = DateTime.now();
-
-      final elapsed = splashEndTime.difference(
-        this.widget.splashStartTime
-      ).inSeconds;
-
-      final int timeToWait = 2;
-
-      if (elapsed >= timeToWait) {
-        setState(() {
-          _showSecondSplashScreen = false;
-        });
-      } else {
-        Future.delayed(Duration(seconds: timeToWait - elapsed), () async {
-          setState(() {
-            _showSecondSplashScreen = false;
-          });
-        });
-      }
-      return SecondSplashScreen();
-    }
-
-    _showAppReview();
-    print(appState.loaded);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'VertiZontal Media',
@@ -239,10 +231,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         colorScheme: ColorScheme.fromSeed(
           seedColor: HexColor.fromHex(
             appState.appLayout['globalTheme']['color']!
-          )
+          ),
         ),
       ),
-      home: AppNavigation()
+      home: Stack(
+        children: [
+          AppNavigation(),
+          if (_showSecondSplashScreen)
+            Positioned.fill(child: SecondSplashScreen()),
+        ]
+      )
     );
   }
 }
@@ -257,27 +255,127 @@ class AppNavigation extends StatefulWidget {
 class _AppNavigationState extends State<AppNavigation> {
   int currentPageIndex = 0;
   int _rebuildFlag = 0;
+  InAppWebViewController? _webViewController;
+  TransformationController _interactiveViewerController = TransformationController();
+
+  List<Widget?> _tabWidgets = [];
+  List<String?> _tabUrls = [];
+  List<InAppWebViewController?> _webViewControllers = [];
+
+  @override
+  void dispose() {
+    _interactiveViewerController.dispose();
+    super.dispose();
+  }
+
+  void _zoomInInteractiveViewer() {
+    final matrix = _interactiveViewerController.value;
+    final zoom = matrix.getMaxScaleOnAxis();
+    if (zoom < 4.0) { // max zoom limit
+      _interactiveViewerController.value = matrix.scaled(1.2);
+    }
+  }
+
+  void _zoomOutInteractiveViewer() {
+    final matrix = _interactiveViewerController.value;
+    final currentScale = matrix.getMaxScaleOnAxis();
+    final minScale = 1.0; // initial/reset scale
+    final zoomFactor = 1 / 1.2; // zoom out factor
+
+    if (currentScale <= minScale) {
+      // Already at or below the min scale, reset exactly to identity matrix
+      _interactiveViewerController.value = Matrix4.identity();
+    } else {
+      final newScale = currentScale * zoomFactor;
+      if (newScale < minScale) {
+        _interactiveViewerController.value = Matrix4.identity();
+      } else {
+        _interactiveViewerController.value = matrix.scaled(zoomFactor);
+      }
+    }
+  }
+
+  void _resetZoomInteractiveViewer() {
+    _interactiveViewerController.value = Matrix4.identity();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> appLayout = AppStateScope.of(context).appLayout;
-    final String loaded = AppStateScope.of(context).loaded!;
-    final ThemeData theme = Theme.of(context);
+    final tabs = AppStateScope.of(context).appLayout['tabs'] as List<dynamic>;
+    final theme = Theme.of(context);
+
+    // Initialize or extend the lists to match the number of tabs
+    while (_tabWidgets.length < tabs.length) _tabWidgets.add(null);
+    while (_tabUrls.length < tabs.length) _tabUrls.add(null);
+    while (_webViewControllers.length < tabs.length) _webViewControllers.add(null);
+    print(_tabWidgets);
+    print(_tabUrls);
+    print(_webViewControllers);
+
+
+    for (int i = 0; i < tabs.length; i++) {
+      final tab = tabs[i];
+      final link = tab['link'] as String;
+
+      final cachedUrl = _tabUrls[i];
+
+      // Only recreate the widget if the URL changed or widget is null
+      if (_tabWidgets[i] == null || cachedUrl != link) {
+        _tabUrls[i] = link;
+
+        if (link.startsWith('http')) {
+          _tabWidgets[i] = WebView(
+            key: ValueKey('webview-$i-$link'),
+            url: link,
+            onWebViewCreated: (controller) {
+              _webViewControllers[i] = controller;
+              setState(() {}); // update when controller assigned
+            },
+          );
+        } else if (link == "#") {
+          _tabWidgets[i] = InteractiveViewer(
+            transformationController: _interactiveViewerController,
+            panEnabled: true,
+            scaleEnabled: true,
+            child: HomeScreen(
+              key: ValueKey('home-$i-$link'),
+              onWebViewCreated: (controller) {
+                _webViewControllers[i] = controller;
+                setState(() {});
+              },
+            ),
+          );
+        } else if (link.toLowerCase() == "more") {
+          _tabWidgets[i] = InteractiveViewer(
+            transformationController: _interactiveViewerController,
+            panEnabled: true,
+            scaleEnabled: true,
+            child: MoreScreen(
+              key: ValueKey('more-$i-$link'),
+              onWebViewCreated: (controller) {
+                _webViewControllers[i] = controller;
+                setState(() {});
+              },
+            ),
+          );
+        } else {
+          _tabWidgets[i] = SizedBox.shrink();
+        }
+      }
+    }
+
+    // Now use your PopScope and Scaffold, unchanged from your last working version:
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) {
-
           return;
         }
 
         if (webViewControllers.isNotEmpty) {
-          GlobalWebViewController globalWebViewController =
-              webViewControllers.last;
-          InAppWebViewController? controller =
-              globalWebViewController.controller;
-          void Function()? customLastGoBack =
-              globalWebViewController.customLastGoBack;
+          GlobalWebViewController globalWebViewController = webViewControllers.last;
+          InAppWebViewController? controller = globalWebViewController.controller;
+          void Function()? customLastGoBack = globalWebViewController.customLastGoBack;
 
           if (controller != null) {
             try {
@@ -287,10 +385,12 @@ class _AppNavigationState extends State<AppNavigation> {
                 return;
               }
 
-              if (customLastGoBack != null)
-              {
+              if (customLastGoBack != null) {
                 customLastGoBack.call();
                 webViewControllers.removeLast();
+                setState(() {
+                  _webViewControllers[currentPageIndex] = null; // update current controller
+                });
                 return;
               }
             } catch (e) {
@@ -303,62 +403,154 @@ class _AppNavigationState extends State<AppNavigation> {
         await SystemNavigator.pop();
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(appLayout['tabs'][currentPageIndex]['text']! as String),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-      ),
-
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            if (index == currentPageIndex) {
-              _rebuildFlag++;
-            } else {
-              currentPageIndex = index;
-              _rebuildFlag = 0;
-            }
-          });
-        },        
-        indicatorColor: HexColor.fromHex(
-          appLayout['tabs'][currentPageIndex]['color']
-        ),
-        selectedIndex: currentPageIndex,
-        destinations: <Widget>[
-          for (var tab in appLayout?['tabs'])
-            NavigationDestination(
-              selectedIcon: AppImage(
-                path: tab['icon']!,
-                width: 24,
-                height: 24,
+        appBar: AppBar(
+          title: Text(tabs[currentPageIndex]['text']! as String),
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+          actions: [
+            if (Platform.isAndroid)
+              IconButton(
+                tooltip: "Screen cast",
+                icon: Icon(Icons.cast, semanticLabel: "Screen cast"),
+                onPressed: () async {
+                  try {
+                    final intent = AndroidIntent(
+                      action: 'android.settings.CAST_SETTINGS',
+                      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+                    );
+                    await intent.launch();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Device not supported"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
               ),
-              icon: AppImage(
-                path: tab['icon']!,
-                width: 24,
-                height: 24,
+            if (Platform.isIOS)
+              IconButton(
+                tooltip: "Screen cast",
+                icon: Icon(Icons.cast, semanticLabel: "Screen cast"),
+                onPressed: () {
+                  _showCastDevicesDialog(context);
+                },
               ),
-              label: tab?['text'],
+            IconButton(
+              tooltip: "Zoom Out",
+              icon: Icon(Icons.zoom_out, semanticLabel: "Zoom out"),
+              onPressed: () async {
+                final currentController = _webViewControllers[currentPageIndex];
+                if (currentController != null) {
+                  bool zoomOut = await currentController.zoomOut();
+                  print('ZoomOut $zoomOut');
+                } else {
+                  _zoomOutInteractiveViewer();
+                }
+              },
             ),
-        ],
+            IconButton(
+              tooltip: "Reset Zoom",
+              icon: Icon(Icons.zoom_out_map, semanticLabel: "Reset zoom"),
+              onPressed: () async {
+                final currentController = _webViewControllers[currentPageIndex];
+                if (currentController != null) {
+                  while (await currentController!.zoomOut()) {}
+                } else {
+                  _resetZoomInteractiveViewer();
+                }
+              },
+            ),
+            IconButton(
+              tooltip: "Zoom In",
+              icon: Icon(Icons.zoom_in, semanticLabel: "Zoom in"),
+              onPressed: () async {
+                final currentController = _webViewControllers[currentPageIndex];
+                if (currentController != null) {
+                  bool zoomIn = await currentController.zoomIn();
+                  print('ZoomIn $zoomIn');
+                } else {
+                  _zoomInInteractiveViewer();
+                }
+              },
+            ),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (int index) async {
+            final tabs = AppStateScope.of(context).appLayout['tabs'] as List<dynamic>;
+            final selectedTabLink = tabs[index]['link'] as String;
+            if (
+              selectedTabLink.toLowerCase() == "#" ||
+              selectedTabLink.toLowerCase() == "more"
+            ) {
+              if (webViewControllers.isNotEmpty) {
+                GlobalWebViewController globalWebViewController = webViewControllers.last;
+                InAppWebViewController? controller = globalWebViewController.controller;
+                void Function()? customLastGoBack = globalWebViewController.customLastGoBack;
+
+                if (controller != null) {
+                    if (customLastGoBack != null) {
+                      customLastGoBack.call();
+                      webViewControllers.removeLast();
+                      setState(() {
+                        _webViewControllers[currentPageIndex] = null; // update current controller
+                      });
+                  }
+                }
+              }
+            }
+            if (index == currentPageIndex) {
+              // User tapped the current tab again
+              final currentController = _webViewControllers[index];
+
+              if (currentController != null) {
+                try {
+                  bool canGoBack = await currentController.canGoBack();
+                  while (canGoBack) {
+                    await currentController.goBack();
+                    canGoBack = await currentController.canGoBack();
+                  }
+                  print("Navigated all the way back in WebView for tab $index");
+                } catch (e) {
+                  print('Error on going back all the way: $e');
+                }
+              } else {
+              }
+            } else {
+              // User tapped a different tab, just switch to it
+              setState(() {
+                currentPageIndex = index;
+              });
+            }
+        },
+        indicatorColor: HexColor.fromHex(tabs[currentPageIndex]['color']),
+          selectedIndex: currentPageIndex,
+          destinations: [
+            for (var tab in tabs)
+              NavigationDestination(
+                selectedIcon: AppImage(
+                  path: tab['icon']!,
+                  width: 24,
+                  height: 24,
+                ),
+                icon: AppImage(
+                  path: tab['icon']!,
+                  width: 24,
+                  height: 24,
+                ),
+                label: tab['text'],
+              ),
+          ],
+        ),
+        body: IndexedStack(
+          index: currentPageIndex,
+          children: _tabWidgets.cast<Widget>(),
+        ),
       ),
-        body: (() {
-          final String link = appLayout['tabs'][currentPageIndex]['link']!;
-          if (link.startsWith('http')) {
-            return WebView(
-              key: ValueKey('$link-$_rebuildFlag'),
-              url: link,
-            );
-          } else if (link == "#") {
-            return HomeScreen(key: ValueKey('home-$_rebuildFlag'));
-          } else if (link == "more") {
-            return MoreScreen(key: ValueKey('more-$_rebuildFlag'));
-          }
-          return SizedBox();
-        })(),
-        )
     );
-  }
-}
+  }}
 
 class SecondSplashScreen extends StatelessWidget {
   @override
@@ -387,3 +579,88 @@ class SecondSplashScreen extends StatelessWidget {
   }
 }
 
+Future<void> initGoogleCast() async {
+  if (Platform.isAndroid) {
+    return;
+  }
+
+  // Use the default Cast application ID or your custom one
+  const appId = GoogleCastDiscoveryCriteria.kDefaultApplicationId;
+  GoogleCastOptions? options;
+  
+  if (Platform.isIOS) {
+    options = IOSGoogleCastOptions(
+      GoogleCastDiscoveryCriteriaInitialize.initWithApplicationID(appId),
+    );
+  } else if (Platform.isAndroid) {
+    options = GoogleCastOptionsAndroid(
+      appId: appId,
+    );
+  }
+  
+  // Initialize the Google Cast context
+  GoogleCastContext.instance.setSharedInstanceWithOptions(options!);
+}
+
+void _showCastDevicesDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text("Select Cast Device"),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: StreamBuilder<List<GoogleCastDevice>>(
+            stream: GoogleCastDiscoveryManager.instance.devicesStream,
+            builder: (context, snapshot) {
+              final devices = snapshot.data ?? [];
+              if (devices.isEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No Cast Devices Found",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Make sure your devices are on the same network and try again.",
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                );
+              }
+
+              return ListView.builder(
+                itemCount: devices.length,
+                itemBuilder: (context, index) {
+                  final device = devices[index];
+                  return ListTile(
+                    title: Text(device.friendlyName),
+                    subtitle: Text(device.modelName ?? 'Unknown Model'),
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      try {
+                        await GoogleCastSessionManager.instance.startSessionWithDevice(device);
+                        print("Connected to ${device.friendlyName}");
+                      } catch (e) {
+                        print("Failed to connect: $e");
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      );
+    },
+  );
+}

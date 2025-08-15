@@ -4,10 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-
+import 'package:flutter/foundation.dart'; // For Factory
+import 'package:flutter/gestures.dart';  // For VerticalDragGestureRecognizer and Horizntal
 import '../global/GlobalControllers.dart';
 import '../global/AppState.dart';
+import '../global/Constants.dart';
 import './Color.dart';
+import './Donation.dart';
+
 
 class WebView extends StatefulWidget {
   /// THe url to load from network.
@@ -17,7 +21,14 @@ class WebView extends StatefulWidget {
   /// SystemNavigator.pop().
   final void Function()? customLastGoBack;
 
-  const WebView({super.key, required this.url, this.customLastGoBack});
+  final ValueChanged<InAppWebViewController>? onWebViewCreated;
+
+  const WebView({
+    super.key,
+    required this.url,
+    this.customLastGoBack,
+    this.onWebViewCreated,
+  });
 
   @override
   State<WebView> createState() => _WebViewState();
@@ -106,6 +117,17 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
             useWideViewPort: false,
             disableDefaultErrorPage: true,
           ),
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            final url = navigationAction.request.url.toString();
+            if (await openDonation(url)) {
+              return NavigationActionPolicy.CANCEL;
+            }
+            return NavigationActionPolicy.ALLOW;
+          },
+          gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+            Factory<VerticalDragGestureRecognizer>(() => VerticalDragGestureRecognizer()),
+            Factory<HorizontalDragGestureRecognizer>(() => HorizontalDragGestureRecognizer()),
+          },
           onReceivedError: (controller, request, error) {
             if (request.isForMainFrame ?? false) {
               setState(() {
@@ -124,6 +146,10 @@ class _WebViewState extends State<WebView> with WidgetsBindingObserver {
           */
           onWebViewCreated: (ctrl) {
             controller = ctrl;
+            if (widget.onWebViewCreated != null) {
+              widget.onWebViewCreated!(controller);
+            }
+
             webViewControllers.add(GlobalWebViewController(
               controller: controller,
               customLastGoBack: this.widget.customLastGoBack,

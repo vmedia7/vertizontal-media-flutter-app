@@ -5,12 +5,15 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 
 // Local Libraries
 import '../utils/WebView.dart';
 import '../utils/AppLayoutCache.dart';
 import '../utils/Color.dart';
 import '../utils/AppImage.dart';
+import '../utils/Donation.dart';
 
 // Services
 import '../services/CacheService.dart';
@@ -18,7 +21,8 @@ import '../services/CacheService.dart';
 import '../global/AppState.dart';
 
 class MoreScreen extends StatefulWidget {
-  const MoreScreen({super.key});
+  final void Function(dynamic)? onWebViewCreated;
+  const MoreScreen({super.key, this.onWebViewCreated});
 
   @override
   State<MoreScreen> createState() => _MoreScreenState();
@@ -34,24 +38,14 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (linkUrl == "ACTION_SEND") {
       await SharePlus.instance.share(
-//        ShareParams(text: Platform.isAndroid ? android : ios)
-        ShareParams(
-          text: Platform.isAndroid 
-          ? "Download Vertizontal Media at: https://play.google.com/store/apps/details?id=com.wVertiZontalMedia"
-          : "Download VertiZontal Media at: https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
-        )
+        ShareParams(text: Platform.isAndroid ? android : ios)
       );
       return;
     }
 
     if (linkUrl == "ACTION_VIEW") {
       await launchUrl(
-        //Uri.parse((Platform.isAndroid ? android : ios) ?? "https://vertizontalmedia.com"),
-        Uri.parse((
-            Platform.isAndroid 
-            ? "https://play.google.com/store/apps/details?id=com.wVertiZontalMedia"
-            : "https://apps.apple.com/us/app/vertizontal-media-app/id6749469616"
-            ) ?? "https://vertizontalmedia.com"),
+        Uri.parse((Platform.isAndroid ? android : ios) ?? "https://vertizontalmedia.com"),
         mode: LaunchMode.externalApplication
       );
       return;
@@ -86,6 +80,11 @@ class _MoreScreenState extends State<MoreScreen> {
     if (linkUrl == "ACTION_EXIT") {
       await CacheService.runBackgroundService();
       FlutterExitApp.exitApp();
+      return;
+    }
+
+
+    if (await openDonation(linkUrl)) {
       return;
     }
 
@@ -161,7 +160,6 @@ class _MoreScreenState extends State<MoreScreen> {
       },
     );
   }
-
   
   Future<void> showAboutDialog(BuildContext context) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -180,7 +178,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
             const SizedBox(height: 6),
             Image.asset(
-              'assets/icon/icon.png',
+              'assets/icon/splash.png',
               width: 128,
               height: 128,
             ),
@@ -244,30 +242,35 @@ class _MoreScreenState extends State<MoreScreen> {
       return WebView(
         url: _url!,
         customLastGoBack: customLastGoBack,
-        key: ValueKey(_url)
+        key: ValueKey(_url),
+        onWebViewCreated: this.widget.onWebViewCreated,
       );
     }
-
     return ListView(
       children: <Widget>[
         for (var section in moreTab['sections'])
-        Card(
-          child: GestureDetector(
-           onTap: () {
-              _handleLinkClicked(section?['link'], section?['android'], section?['ios'], context);
-            },
-            child: ListTile(
-              leading: AppImage(
-                path: section['icon']!,
-                width: 24,
-                height: 24,
-                color: HexColor.fromHex(section['color'] ?? "#0066ff")
+          Card(
+            child: GestureDetector(
+              onTap: () {
+                _handleLinkClicked(
+                  section?['link'],
+                  section?['android'],
+                  section?['ios'],
+                  context,
+                );
+              },
+              child: ListTile(
+                leading: AppImage(
+                  path: section['icon']!,
+                  width: 24,
+                  height: 24,
+                  color: HexColor.fromHex(section['color'] ?? "#0066ff"),
+                ),
+                title: Text(section['text']!),
+                trailing: const Icon(Icons.chevron_right),
               ),
-              title: Text(section['text']!),
-              trailing: Icon(Icons.chevron_right),
             ),
           ),
-        ),
       ],
     );
   }
